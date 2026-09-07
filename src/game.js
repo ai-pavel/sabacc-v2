@@ -22,8 +22,8 @@ const PURE_SABACC = 23;
 const BOMB = -24;
 const PURE_SABACC_POINTS = 46;
 const BOMB_POINTS = -24;
-/** Tournament winner crosses this threshold */
-const WIN_THRESHOLD = 500;
+/** Tournament winner crosses this threshold (configurable via Settings). */
+let WIN_THRESHOLD = 500;
 /** Sentinel for an empty card slot */
 const EMPTY = 20;
 /** Number of CPU opponents (the human is in addition to these). */
@@ -59,12 +59,14 @@ const FACE_CARDS = {
   s: { value: 17, name: STR.faceCards.s },
 };
 
-// CPU opponents (analysis.md table). Race names come from STR.cpuRaces;
-// the index in that array drives avatar selection (cpu1.gif .. cpu5.gif).
-const CPU_RACES = STR.cpuRaces.map((name, i) => ({
+// CPU opponents (analysis.md table). Race names come from STR.cpuRaces and
+// are locale-dependent; thresholds are fixed. Rebuilt by refreshCpuRaces()
+// on locale change so names translate immediately.
+const refreshCpuRaces = () => STR.cpuRaces.map((name, i) => ({
   name,
   threshold: 15 + i,
 }));
+let CPU_RACES = refreshCpuRaces();
 
 // -----------------------------------------------------------------------------
 // Deck
@@ -410,6 +412,8 @@ let musicStarted = 0;
 let bomb = 0;
 let opponentsRolled = false;
 let deck = buildDeck();
+let gameStartTime = 0;
+let roundCount = 0;
 
 // Per-player state. players[0] = human, players[1..NUM_CPUS] = CPUs.
 const players = Array.from({ length: NUM_PLAYERS }, () => ({
@@ -572,6 +576,7 @@ const clearLog = () => {
   } else {
     $("eventLog").value = STR.log.roundHeader.replace("{n}", game);
     game += 1;
+    roundCount += 1;
   }
   updateScore();
   updateTournamentPanel();
@@ -777,12 +782,21 @@ const pass = () => {
   const winner = decideWinner(players.map((p) => p.points));
   if (winner.index < 0) {
     gamer();
-  } else if (winner.tie) {
-    showToast(STR.toast.tie, "info");
-    setTimeout(ref, 2000);
   } else {
-    showToast(STR.toast.winner.replace("{name}", players[winner.index].name), "success");
-    setTimeout(ref, 3000);
+    // Record human player's result to Hall of Fame
+    recordHallOfFame({
+      name: players[0].name,
+      score: players[0].points,
+      rounds: roundCount,
+      time: Date.now() - gameStartTime,
+    });
+    if (winner.tie) {
+      showToast(STR.toast.tie, "info");
+      setTimeout(ref, 2000);
+    } else {
+      showToast(STR.toast.winner.replace("{name}", players[winner.index].name), "success");
+      setTimeout(ref, 3000);
+    }
   }
 };
 
@@ -833,10 +847,16 @@ const gamer = () => {
   blankedImgId = "";
   interSavedFile = "";
 
+  // First game: start timer and round counter
+  if (gameStartTime === 0) {
+    gameStartTime = Date.now();
+    roundCount = 1;
+  }
+
   players[0].name = $("nameInput").value || STR.defaultPlayerName;
+  savePlayerName(players[0].name);
   $("turnBtn").disabled = false;
-  $("startPanel").style.display = "none";
-  $("game").style.display = "block";
+  showScreen("game");
   startMusic();
   buildGameBoard();
   setAlt("playerAvatar", players[0].name);
@@ -1104,9 +1124,28 @@ const generate = () => {
 // Music
 // -----------------------------------------------------------------------------
 
+const MUSIC_KEY = "sabacc-music";
+const NAME_KEY = "sabacc-player-name";
+
+const loadMusicPref = () => {
+  try { return localStorage.getItem(MUSIC_KEY) || "on"; } catch { return "on"; }
+};
+
+const setMusic = (val) => {
+  try { localStorage.setItem(MUSIC_KEY, val); } catch {}
+};
+
+const loadPlayerName = () => {
+  try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; }
+};
+
+const savePlayerName = (name) => {
+  try { localStorage.setItem(NAME_KEY, name); } catch {}
+};
+
 const startMusic = () => {
   if (musicStarted !== 0) return;
-  if ($("musicToggle").checked) $("musicPlayer").src = `${ASSET.audioDir}cantina.mp3`;
+  if (loadMusicPref() === "on") $("musicPlayer").src = `${ASSET.audioDir}cantina.mp3`;
   musicStarted = 1;
 };
 
@@ -1129,21 +1168,239 @@ const setupKeyboard = () => {
 };
 
 // -----------------------------------------------------------------------------
+// Win threshold — configurable via Settings, persisted in localStorage
+// -----------------------------------------------------------------------------
+
+const WIN_THRESHOLD_KEY = "sabacc-win-threshold";
+const VALID_THRESHOLDS = [500, 1000, 2500, 5000];
+
+const loadWinThreshold = () => {
+  try {
+    const v = Number(localStorage.getItem(WIN_THRESHOLD_KEY));
+    if (VALID_THRESHOLDS.includes(v)) return v;
+  } catch {}
+  return 500;
+};
+
+const setWinThreshold = (val) => {
+  const n = Number(val);
+  if (VALID_THRESHOLDS.includes(n)) {
+    WIN_THRESHOLD = n;
+    try { localStorage.setItem(WIN_THRESHOLD_KEY, String(n)); } catch {}
+  }
+};
+
+// Apply saved threshold on script load
+if (typeof document !== "undefined") {
+  WIN_THRESHOLD = loadWinThreshold();
+  // Rebuild CPU_RACES when the locale changes so opponent names translate.
+  if (typeof i18n !== "undefined" && i18n.onLocaleChange) {
+    i18n.onLocaleChange(() => { CPU_RACES = refreshCpuRaces(); });
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Screen navigation
+// -----------------------------------------------------------------------------
+
+const showScreen = (id) => {
+  for (const el of document.querySelectorAll(".screen")) {
+    el.style.display = "none";
+  }
+  const target = $(id);
+  if (!target) return;
+  // Menu and sub-screens use flex for left-aligned vertical centering;
+  // the game screen uses block layout; credits uses block (fixed-position).
+  if (target.classList.contains("game-screen") || target.classList.contains("credits-screen")) {
+    target.style.display = "block";
+  } else {
+    target.style.display = "flex";
+  }
+};
+
+// -----------------------------------------------------------------------------
+// Intro video
+// -----------------------------------------------------------------------------
+
+const skipIntro = () => {
+  const overlay = $("introVideo");
+  if (!overlay) return;
+  overlay.classList.add("hidden");
+  const video = $("introPlayer");
+  if (video) video.pause();
+};
+
+// -----------------------------------------------------------------------------
+// Hall of Fame — localStorage persistence
+// -----------------------------------------------------------------------------
+
+const HOF_KEY = "sabacc-hof";
+const HOF_MAX = 10;
+let hofSortKey = "score";
+
+const loadHallOfFame = () => {
+  try {
+    const raw = localStorage.getItem(HOF_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveHallOfFame = (data) => {
+  try {
+    localStorage.setItem(HOF_KEY, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+};
+
+const recordHallOfFame = (entry) => {
+  const data = loadHallOfFame();
+  data.push(entry);
+  saveHallOfFame(data);
+};
+
+const formatTime = (ms) => {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, "0")}`;
+};
+
+const renderHallOfFame = () => {
+  const container = $("hofTable");
+  if (!container) return;
+  const data = loadHallOfFame();
+  if (data.length === 0) {
+    container.innerHTML = `<p class="hof-empty">${STR.hof.empty}</p>`;
+    return;
+  }
+  const sorted = [...data].sort((a, b) => {
+    if (hofSortKey === "score") return b.score - a.score;
+    if (hofSortKey === "rounds") return b.rounds - a.rounds;
+    if (hofSortKey === "time") return a.time - b.time;
+    return 0;
+  }).slice(0, HOF_MAX);
+
+  const rows = sorted.map((e, i) =>
+    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${formatTime(e.time)}</td></tr>`
+  ).join("");
+
+  const sortAttr = (key) =>
+    key === hofSortKey ? ' class="sort-active"' : "";
+
+  container.innerHTML =
+    `<table class="hof-table">` +
+    `<tr>` +
+      `<th${sortAttr("rank")} onclick="hofSort('rank')">${STR.hof.rank}</th>` +
+      `<th>${STR.hof.name}</th>` +
+      `<th${sortAttr("score")} onclick="hofSort('score')">${STR.hof.score}</th>` +
+      `<th${sortAttr("rounds")} onclick="hofSort('rounds')">${STR.hof.rounds}</th>` +
+      `<th${sortAttr("time")} onclick="hofSort('time')">${STR.hof.time}</th>` +
+    `</tr>` +
+    rows +
+    `</table>`;
+};
+
+const showHallOfFame = () => {
+  renderHallOfFame();
+  showScreen("hofScreen");
+};
+
+// -----------------------------------------------------------------------------
+// Rules screen
+// -----------------------------------------------------------------------------
+
+const showRules = () => {
+  const c = $("rulesContent");
+  if (c) c.innerHTML = STR.rules.html;
+  showScreen("rulesScreen");
+};
+
+// -----------------------------------------------------------------------------
+// Credits screen
+// -----------------------------------------------------------------------------
+
+const showCredits = () => {
+  const scroll = $("creditsScroll");
+  if (scroll) scroll.innerHTML = STR.credits.html;
+  showScreen("creditsScreen");
+  const audio = $("creditsAudio");
+  if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+};
+
+const hofSort = (key) => {
+  hofSortKey = key;
+  renderHallOfFame();
+};
+
+const resetHallOfFame = () => {
+  if (confirm(STR.hof.resetConfirm)) {
+    saveHallOfFame([]);
+    renderHallOfFame();
+  }
+};
+
+// -----------------------------------------------------------------------------
+// Exit game
+// -----------------------------------------------------------------------------
+
+const exitGame = () => {
+  // In a browser tab we can't truly close, so go to a blank state.
+  // Some browsers allow window.close() if opened by script; try it.
+  window.close();
+  // Fallback: show a goodbye screen
+  document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:yellow;font-size:24px;font-family:sans-serif">May the Force be with you.</div>`;
+};
+
+// -----------------------------------------------------------------------------
 // Init — runs on script load in the browser
 // -----------------------------------------------------------------------------
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setupKeyboard();
+    const sel = $("winThresholdSelect");
+    if (sel) sel.value = String(WIN_THRESHOLD);
+    const musicSel = $("musicToggle");
+    if (musicSel) musicSel.value = loadMusicPref();
+    const nameInput = $("nameInput");
+    if (nameInput) {
+      const saved = loadPlayerName();
+      if (saved) nameInput.value = saved;
+    }
+    // Auto-dismiss intro video after 6 seconds
+    setTimeout(skipIntro, 6000);
   });
 } else {
   setupKeyboard();
+  const sel = $("winThresholdSelect");
+  if (sel) sel.value = String(WIN_THRESHOLD);
+  const musicSel = $("musicToggle");
+  if (musicSel) musicSel.value = loadMusicPref();
+  const nameInput = $("nameInput");
+  if (nameInput) {
+    const saved = loadPlayerName();
+    if (saved) nameInput.value = saved;
+  }
+  setTimeout(skipIntro, 6000);
 }
 
 // Expose DOM-coupled functions to inline HTML handlers (browser only).
 window.gamer = gamer;
 window.turn = turn;
 window.pass = pass;
+window.showScreen = showScreen;
+window.showHallOfFame = showHallOfFame;
+window.resetHallOfFame = resetHallOfFame;
+window.exitGame = exitGame;
+window.hofSort = hofSort;
+window.setWinThreshold = setWinThreshold;
+window.showRules = showRules;
+window.setMusic = setMusic;
+window.showCredits = showCredits;
+window.skipIntro = skipIntro;
 
 } // end of `if (typeof document !== "undefined")` block
 

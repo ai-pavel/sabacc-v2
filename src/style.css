@@ -42,19 +42,230 @@ a:hover {
   display: none;
 }
 
-/* ----- Start screen ----- */
-#startPanel .screen-inner {
-  text-align: center;
+/* ----- Intro video overlay ----- */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-#startPanel .title {
-  font-size: 36px;
+.intro-overlay.hidden {
+  display: none;
 }
-#startPanel .label {
+.intro-video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+.intro-skip {
+  position: fixed;
+  bottom: 30px;
+  right: 40px;
+  z-index: 10000;
+  padding: 8px 24px;
+  font-size: 16px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.intro-skip:hover {
+  background: rgba(40,30,0,0.8);
+  border-color: #ccaa00;
+}
+
+/* ----- Main menu (HoMM-style left-aligned buttons) ----- */
+.menu-screen {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-left: 80px;
+}
+.menu-btn {
+  width: 240px;
+  padding: 12px 24px;
+  font-size: 22px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.menu-btn:hover {
+  background: linear-gradient(90deg, rgba(40,30,0,0.9), rgba(20,15,0,0.6));
+  border-color: #ccaa00;
+  transform: translateX(4px);
+}
+.menu-btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+/* ----- Sub-screens (settings, hall of fame, rules) — left-aligned like menu ----- */
+.sub-screen {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+.sub-screen .screen-inner {
+  margin-left: 80px;
+  max-width: 600px;
+}
+.sub-screen .title {
   font-size: 28px;
+  text-align: left;
+  margin-bottom: 24px;
 }
-#startPanel .formControl {
-  font-size: 24px;
-  padding: 4px 8px;
+.sub-screen .label {
+  font-size: 16px;
+  width: 130px;
+  flex-shrink: 0;
+}
+.sub-screen .formControl {
+  font-size: 14px;
+  padding: 3px 6px;
+  width: 150px;
+  box-sizing: border-box;
+}
+.sub-screen .form-row {
+  justify-content: flex-start;
+}
+.name-input {
+  width: 150px;
+}
+
+/* ----- Credits screen ----- */
+.credits-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+.credits-window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.credits-scroll {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  animation: roll 60s linear infinite;
+}
+@keyframes roll {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+.credits-scroll .panel {
+  padding: 30px 20px;
+  font-size: 14px;
+  color: #9999ff;
+}
+.credits-scroll .panel b {
+  font-size: 18px;
+  color: #ccc;
+}
+.credits-scroll .panel .small {
+  font-size: 11px;
+  color: #888;
+}
+.credits-scroll .panel a {
+  color: #ccaa00;
+  text-decoration: none;
+}
+.credits-scroll .panel a:hover {
+  color: #ffe066;
+  text-decoration: underline;
+}
+.credits-screen .back-link {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 10;
+  background: rgba(0,0,0,0.7);
+  padding: 5px 0;
+}
+
+/* Dark panel — same gradient/border as menu buttons, for settings & rules content */
+.sub-panel {
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  padding: 20px 24px;
+  max-width: 600px;
+}
+
+/* ----- Rules screen ----- */
+.rules-content {
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #665500 rgba(0,0,0,0.3);
+}
+.rules-content::-webkit-scrollbar {
+  width: 8px;
+}
+.rules-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.3);
+}
+.rules-content::-webkit-scrollbar-thumb {
+  background: #665500;
+  border-radius: 4px;
+}
+.rules-content h3 {
+  color: #ccaa00;
+  font-size: 16px;
+  margin: 18px 0 6px;
+}
+.rules-content p {
+  margin: 4px 0;
+}
+.rules-content ul {
+  margin: 4px 0 4px 0;
+  padding-left: 20px;
+}
+.rules-content li {
+  margin: 2px 0;
+}
+.rules-content table {
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+.rules-content th, .rules-content td {
+  padding: 4px 12px 4px 0;
+  text-align: left;
+}
+.rules-content th {
+  color: #ccaa00;
+  border-bottom: 1px solid #665500;
 }
 .form-row {
   margin: 8px 0;
@@ -307,6 +518,44 @@ a:hover {
   font-size: 10px;
   color: #999;
   margin-left: 3px;
+}
+
+/* ----- Hall of Fame table ----- */
+.hof-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.hof-table th {
+  background: rgba(0,0,0,0.6);
+  color: #ccaa00;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid #665500;
+  cursor: pointer;
+  user-select: none;
+}
+.hof-table th:hover {
+  color: #ffe066;
+}
+.hof-table th.sort-active {
+  color: #ffe066;
+  text-decoration: underline;
+}
+.hof-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #333;
+}
+.hof-table tr:nth-child(even) td {
+  background: rgba(0,0,0,0.25);
+}
+.hof-empty {
+  color: #888;
+  font-size: 16px;
+  text-align: center;
+  padding: 40px 0;
 }
 
 /* ----- Toast notifications ----- */

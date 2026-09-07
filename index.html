@@ -22,27 +22,102 @@
 </head>
 <body>
 
-<!-- ============ Start screen (name entry) ============ -->
-<div id="startPanel" class="screen">
+<!-- ============ Intro video overlay (with skip button) ============ -->
+<div id="introVideo" class="intro-overlay">
+  <video id="introPlayer" class="intro-video" autoplay muted playsinline>
+    <source src="assets/video/background_video.mp4" type="video/mp4">
+  </video>
+  <input type="button" class="intro-skip" onClick="skipIntro()" value="Skip" data-i18n="ui.skip">
+</div>
+
+<!-- ============ Main menu ============ -->
+<div id="startPanel" class="screen menu-screen">
+  <div class="menu-buttons">
+    <input type="button" class="menu-btn" onClick="gamer()" value="Start Game" data-i18n="ui.startGame">
+    <input type="button" class="menu-btn" onClick="showScreen('settingsScreen')" value="Settings" data-i18n="ui.settings">
+    <input type="button" class="menu-btn" onClick="showRules()" value="Rules" data-i18n="ui.rules">
+    <input type="button" class="menu-btn" onClick="showHallOfFame()" value="Hall of Fame" data-i18n="ui.hallOfFame">
+    <input type="button" class="menu-btn" onClick="showCredits()" value="Credits" data-i18n="ui.credits">
+    <input type="button" class="menu-btn" onClick="exitGame()" value="Exit Game" data-i18n="ui.exitGame">
+  </div>
+</div>
+
+<!-- ============ Settings screen ============ -->
+<div id="settingsScreen" class="screen sub-screen" style="display:none">
   <div class="screen-inner">
-    <p class="title" data-i18n="ui.copyright">Sabacc of Coruscant &copy; 2005</p>
-    <div class="form-row">
-      <span class="label" data-i18n="ui.yourName">Your name:</span>
-      <input type="text" class="formControl" id="nameInput" maxlength="19" placeholder="Player" data-i18n-ph="defaultPlayerName">
+    <p class="title" data-i18n="ui.settingsTitle">Settings</p>
+    <div class="sub-panel">
+      <div class="form-row">
+        <span class="label" data-i18n="ui.yourName">Your name:</span>
+        <input type="text" class="formControl name-input" id="nameInput" maxlength="19" placeholder="Player" data-i18n-ph="defaultPlayerName">
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.enableMusic">Enable music?</span>
+        <select id="musicToggle" class="formControl" onChange="setMusic(this.value)">
+          <option value="on" data-i18n="ui.musicOn">On</option>
+          <option value="off" data-i18n="ui.musicOff">Off</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.winThreshold">Points to win:</span>
+        <select id="winThresholdSelect" class="formControl" onChange="setWinThreshold(this.value)">
+          <option value="500">500</option>
+          <option value="1000">1000</option>
+          <option value="2500">2500</option>
+          <option value="5000">5000</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.language">Language:</span>
+        <select id="langSelect" class="formControl"></select>
+      </div>
+      <div class="form-row">
+        <input type="button" class="formControl" onClick="resetHallOfFame()" value="Reset Hall of Fame" data-i18n="ui.resetHoF">
+      </div>
     </div>
     <div class="form-row">
-      <input name="music" type="checkbox" class="formControl" id="musicToggle" checked>
-      <span class="label" data-i18n="ui.enableMusic">Enable music?</span>
-    </div>
-    <div class="form-row">
-      <span class="label" data-i18n="ui.language">Language:</span>
-      <select id="langSelect" class="formControl"></select>
-    </div>
-    <div class="form-row">
-      <input type="button" class="formControl" onClick="gamer()" value="Start game" data-i18n="ui.startGame">
-      <a href="credits.html" data-i18n="ui.credits">Credits</a>
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
     </div>
   </div>
+</div>
+
+<!-- ============ Hall of Fame screen ============ -->
+<div id="hofScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.hallOfFameTitle">Hall of Fame</p>
+    <div class="sub-panel">
+      <div id="hofTable"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Rules screen ============ -->
+<div id="rulesScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.rulesTitle">Rules</p>
+    <div class="sub-panel">
+      <div id="rulesContent" class="rules-content"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Credits screen ============ -->
+<div id="creditsScreen" class="screen credits-screen" style="display:none">
+  <div class="credits-window">
+    <div class="credits-scroll" id="creditsScroll"></div>
+  </div>
+  <div class="back-link">
+    <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+  </div>
+  <audio loop autoplay id="creditsAudio">
+    <source src="assets/audio/credits.mp3" type="audio/mpeg">
+  </audio>
 </div>
 
 <!-- ============ Game screen ============ -->

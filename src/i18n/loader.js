@@ -58,7 +58,15 @@
       if (!activate(code)) return false;
       // Re-apply DOM strings if we're in a browser.
       if (typeof document !== "undefined") i18n.apply();
+      // Notify registered listeners (e.g. game.js rebuilding CPU_RACES).
+      if (global.i18n._hooks) {
+        for (const fn of global.i18n._hooks) { try { fn(code); } catch {} }
+      }
       return true;
+    },
+    onLocaleChange(fn) {
+      if (!global.i18n._hooks) global.i18n._hooks = [];
+      global.i18n._hooks.push(fn);
     },
     get(code) {
       return registry.get(code || activeCode);
@@ -68,11 +76,16 @@
     },
     apply() {
       if (typeof document === "undefined") return;
-      // [data-i18n] sets element text content.
+      // [data-i18n] sets element text content (or value for buttons/inputs).
       document.querySelectorAll("[data-i18n]").forEach((el) => {
         const key = el.getAttribute("data-i18n");
         const val = resolve(global.STR, key);
-        if (val != null) el.textContent = val;
+        if (val == null) return;
+        if (el.tagName === "INPUT" && (el.type === "button" || el.type === "submit")) {
+          el.value = val;
+        } else {
+          el.textContent = val;
+        }
       });
       // [data-i18n-ph] sets placeholder.
       document.querySelectorAll("[data-i18n-ph]").forEach((el) => {

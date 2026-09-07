@@ -187,13 +187,22 @@ PURE RULE FUNCTIONS (no DOM access, exported for testing):
 
 ## Game loop
 
-### 1. Start screen
+### 1. Main menu
 
-The player enters a name (optional — defaults to "Player") and may pick an
-avatar image (max 65x65 px) and toggle background music. Clicking **Start
-game** calls `gamer()`, which hides the start panel, reveals the game board,
-starts the music (if enabled), rolls each CPU's "favorite cards" list, and
-deals the opening hands.
+The main menu shows five HoMM-style buttons (left-aligned): **Start Game**,
+**Settings**, **Hall of Fame**, **Credits**, **Exit Game**.
+
+- **Start Game** launches a tournament immediately.
+- **Settings** opens a sub-screen with player name, music toggle, language
+  picker, and a "Reset Hall of Fame" button.
+- **Hall of Fame** shows the top 10 tournament results (sortable by score,
+  rounds, or game time), persisted in `localStorage`.
+- **Credits** opens the rolling credits page.
+- **Exit Game** attempts to close the tab.
+
+Clicking **Start game** calls `gamer()`, which hides the menu, reveals the
+game board, starts the music (if enabled), rolls each CPU's "favorite cards"
+list, and deals the opening hands. The game timer starts on first launch.
 
 ### 2. Opponent selection
 
