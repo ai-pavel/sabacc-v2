@@ -4,32 +4,43 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Sabacc of Coruscant</title>
 <link href="src/style.css" rel="stylesheet">
-<script src="src/program.js"></script>
+<!-- i18n: loader + locales + init must load before game.js -->
+<script src="src/i18n/loader.js"></script>
+<script src="src/i18n/en.js"></script>
+<script src="src/i18n/ru.js"></script>
+<script src="src/i18n/es.js"></script>
+<script src="src/i18n/fr.js"></script>
+<script src="src/i18n/de.js"></script>
+<script src="src/i18n/pl.js"></script>
+<script src="src/i18n/it.js"></script>
+<script src="src/i18n/pt.js"></script>
+<script src="src/i18n/ja.js"></script>
+<script src="src/i18n/zh.js"></script>
+<script src="src/i18n/init.js"></script>
+<!-- Game logic -->
+<script src="src/game.js"></script>
 </head>
 <body>
-
-<!-- ============ Intro video ============ -->
-<div id="introVideo" class="intro-overlay">
-  <video id="introPlayer" class="intro-video" autoplay muted playsinline>
-    <source src="assets/video/background_video.mp4" type="video/mp4">
-  </video>
-</div>
 
 <!-- ============ Start screen (name entry) ============ -->
 <div id="startPanel" class="screen">
   <div class="screen-inner">
-    <p class="title">Sabacc of Coruscant &copy; 2005</p>
+    <p class="title" data-i18n="ui.copyright">Sabacc of Coruscant &copy; 2005</p>
     <div class="form-row">
-      <span class="label">Your name:</span>
-      <input type="text" class="formControl" id="nameInput" maxlength="19" placeholder="Player">
+      <span class="label" data-i18n="ui.yourName">Your name:</span>
+      <input type="text" class="formControl" id="nameInput" maxlength="19" placeholder="Player" data-i18n-ph="defaultPlayerName">
     </div>
     <div class="form-row">
       <input name="music" type="checkbox" class="formControl" id="musicToggle" checked>
-      <span class="label">Enable music?</span>
+      <span class="label" data-i18n="ui.enableMusic">Enable music?</span>
     </div>
     <div class="form-row">
-      <input type="button" class="formControl" onClick="gamer()" value="Start game">
-      <a href="credits.html">Credits</a>
+      <span class="label" data-i18n="ui.language">Language:</span>
+      <select id="langSelect" class="formControl"></select>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="gamer()" value="Start game" data-i18n="ui.startGame">
+      <a href="credits.html" data-i18n="ui.credits">Credits</a>
     </div>
   </div>
 </div>
@@ -43,29 +54,29 @@
     <!-- Generator (randomizer pot) display -->
     <div class="generator-panel">
       <input type="text" class="formControl gen-card" id="genCard1" readonly>
-      <img src="assets/ui/generator.gif" alt="generator">
+      <img src="assets/ui/generator.gif" alt="generator" data-i18n="uiGame.generatorAlt">
       <input type="text" class="formControl gen-card" id="genCard2" readonly>
     </div>
 
     <!-- Interference field: cpu1 | player | cpu2 -->
     <div class="field-panel">
-      <div class="field-label">Interference field</div>
+      <div class="field-label" data-i18n="uiGame.interferenceField">Interference field</div>
       <div class="field-slots">
-        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu1Field">
+        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu1Field" data-i18n="alt.opponentField">
         <div id="playerFieldDrop" class="field-drop-zone">
-          <img src="assets/cards/field.gif" alt="Your interference field" id="playerField">
+          <img src="assets/cards/field.gif" alt="Your interference field" id="playerField" data-i18n="alt.yourField">
         </div>
-        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu2Field">
+        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu2Field" data-i18n="alt.opponentField">
       </div>
-      <p class="field-hint">Drag a card here to protect it</p>
+      <p class="field-hint" data-i18n="uiGame.fieldHint">Drag a card here to protect it</p>
     </div>
 
     <!-- Event log + action buttons -->
     <div class="log-panel">
       <textarea readonly wrap="virtual" class="eventLogStyle" id="eventLog"></textarea>
       <div class="action-buttons">
-        <input type="button" class="formControl" id="turnBtn" onClick="turn()" value="Next turn">
-        <input type="button" class="formControl" id="passBtn" onClick="pass()" value="Pass">
+        <input type="button" class="formControl" id="turnBtn" onClick="turn()" value="Next turn" data-i18n="uiGame.nextTurn">
+        <input type="button" class="formControl" id="passBtn" onClick="pass()" value="Pass" data-i18n="uiGame.pass">
       </div>
     </div>
 
@@ -114,9 +125,9 @@
 
   <!-- Avatar row: cpu1 | player | cpu2 -->
   <div class="avatar-row">
-    <img src="assets/avatars/blank.gif" id="cpu1Avatar" alt="CPU 1">
-    <img src="assets/avatars/default.gif" id="playerAvatar" alt="You">
-    <img src="assets/avatars/blank.gif" id="cpu2Avatar" alt="CPU 2">
+    <img src="assets/avatars/blank.gif" id="cpu1Avatar" alt="CPU 1" data-i18n="uiGame.cpu1Alt">
+    <img src="assets/avatars/default.gif" id="playerAvatar" alt="You" data-i18n="uiGame.youAlt">
+    <img src="assets/avatars/blank.gif" id="cpu2Avatar" alt="CPU 2" data-i18n="uiGame.cpu2Alt">
   </div>
 
 </div>

@@ -1,9 +1,10 @@
 # Sabacc Tournament
 
 A 3-player Sabacc card game (you + 2 CPU opponents) set in the Star Wars
-universe, originally written in 2005 by "Revan/Darth Favourite" and
-refactored for modern browsers. Rules based on the Sabacc variant from the
-*Star Wars: Knights of the Old Republic* comics.
+universe, originally written in 2005 by Revan (idea + code) and
+Darth Favourite (graphics), and refactored for modern browsers. The
+ruleset is inspired by the Sabacc scene in James Luceno's novel
+*Agents of Chaos I: Hero's Trial*.
 
 ## Quick start
 
@@ -17,7 +18,7 @@ node --test
 
 ## Game loop pseudocode
 
-The following scheme traces every main function in `src/program.js`,
+The following scheme traces every main function in `src/game.js`,
 showing how control flows from the start screen through a round and into
 the next. Pure rule functions (no DOM access) are marked with `·`.
 
@@ -312,8 +313,21 @@ The 76-card deck:
 index.html          Game page (start screen + game board)
 credits.html        Rolling end-credits screen with music
 src/
-  program.js        Game logic (pure rules + DOM coupling)
+  game.js           Game logic (pure rules + DOM coupling)
   style.css         Layout and theming
+  i18n/
+    loader.js       i18n registry + window.STR accessor
+    init.js         Language picker + DOM [data-i18n] applier
+    en.js           English (🇬🇧)
+    ru.js           Russian (🇷🇺 Русский)
+    es.js           Spanish (🇪🇸 Español)
+    fr.js           French (🇫🇷 Français)
+    de.js           German (🇩🇪 Deutsch)
+    pl.js           Polish (🇵🇱 Polski)
+    it.js           Italian (🇮🇹 Italiano)
+    pt.js           Portuguese (🇵🇹 Português)
+    ja.js           Japanese (🇯🇵 日本語)
+    zh.js           Simplified Chinese (🇨🇳 简体中文)
 assets/
   cards/            76 card faces + blank.gif + field.gif + wallp.gif
   audio/            cantina.mp3 (in-game) + credits.mp3 (credits screen)
@@ -327,12 +341,14 @@ analysis.md         Original 2005 code analysis and bug inventory
 
 ## Credits
 
+- **Idea**: Revan (revan1@mail.ru)
 - **Code**: Revan (revan1@mail.ru)
 - **Testing & debugging**: Revan
-- **Idea**: Darth Favourite (favourite_2003@mail.ru)
-- **Music**: John Williams (cantina) / Mark Griskey (end credits)
-- **Based on**: *Star Wars: Knights of the Old Republic* (Dark Horse Comics)
-- **Thanks**: Denis Konstantin (Sabacc Tour table), Jim Rayner
+- **Graphics**: Darth Favourite (favourite_2003@mail.ru)
+- **Music**: Mark Griskey (KOTOR II: Iziz Cantina) / John Williams (Star Wars: End Credits)
+- **Thanks**: James Luceno, for the book *Agents of Chaos I: Hero's Trial*
+- **Special thanks**: Denis Konstantin (Sabacc Tour table)
+- **And also**: George Lucas, for the *Star Wars* saga; Microsoft, for Notepad
 
 All rights, design, etc. belong to Lucasfilm, Ltd. Star Wars and related
 marks are trademarks of Lucasfilm.

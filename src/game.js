@@ -5,6 +5,11 @@
 // Pure rule functions are attached to window.Sabacc for unit testing;
 // DOM-mutating functions are attached to `window` for the event handlers
 // registered in index.html.
+//
+// Human-facing strings live in src/i18n/*.js, loaded before this file (see
+// index.html). The active locale is exposed on `window.STR` by the i18n
+// loader; in Node the test harness requires loader.js + en.js first, which
+// sets globalThis.STR.
 // =============================================================================
 
 // -----------------------------------------------------------------------------
@@ -22,28 +27,26 @@ const WIN_THRESHOLD = 500;
 /** Sentinel for an empty card slot */
 const EMPTY = 20;
 
-const SUITS = { c: "Coins", f: "Flasks", p: "Sabers", s: "Staves" };
+const SUITS = STR.suits;
 
 // Face cards: code prefix -> { value, name }
 const FACE_CARDS = {
-  i: { value: 0,  name: "Idiot" },
-  q: { value: 2,  name: "Queen of Madness" },
-  e: { value: 6,  name: "Endurance" },
-  b: { value: 8,  name: "Balance" },
-  d: { value: 11, name: "Duelist" },
-  c: { value: 13, name: "Commander" },
-  a: { value: 15, name: "Ace" },
-  s: { value: 17, name: "Senator" },
+  i: { value: 0,  name: STR.faceCards.i },
+  q: { value: 2,  name: STR.faceCards.q },
+  e: { value: 6,  name: STR.faceCards.e },
+  b: { value: 8,  name: STR.faceCards.b },
+  d: { value: 11, name: STR.faceCards.d },
+  c: { value: 13, name: STR.faceCards.c },
+  a: { value: 15, name: STR.faceCards.a },
+  s: { value: 17, name: STR.faceCards.s },
 };
 
-// CPU opponents (analysis.md table)
-const CPU_RACES = [
-  { name: "Human",          threshold: 15 },
-  { name: "Jedi-Killer",    threshold: 16 },
-  { name: "Gambler",        threshold: 17 },
-  { name: "Smuggler",       threshold: 18 },
-  { name: "Bounty Hunter",  threshold: 19 },
-];
+// CPU opponents (analysis.md table). Race names come from STR.cpuRaces;
+// the index in that array drives avatar selection (cpu1.gif .. cpu5.gif).
+const CPU_RACES = STR.cpuRaces.map((name, i) => ({
+  name,
+  threshold: 15 + i,
+}));
 
 // -----------------------------------------------------------------------------
 // Deck
@@ -94,10 +97,10 @@ const compile = (card) => {
   const fm = card.match(/^([iqebdcas])([12])\.jpg$/);
   if (fm) {
     const { name } = FACE_CARDS[fm[1]];
-    const sign = fm[2] === "2" ? "(-)" : "(+)";
-    return fm[1] === "i" ? "Idiot" : `${name} ${sign}`;
+    const sign = fm[2] === "2" ? STR.negativeSuffix : STR.positiveSuffix;
+    return fm[1] === "i" ? STR.faceCards.i : `${name} ${sign}`;
   }
-  return "Empty!";
+  return STR.emptyCard;
 };
 
 /**
@@ -466,15 +469,19 @@ const scrollLog = () => { $("eventLog").scrollTop = $("eventLog").scrollHeight; 
 const clearLog = () => {
   opps();
   if (game === 0) {
-    $("eventLog").value = `${playerName}, good luck and don't get cocky!`;
+    $("eventLog").value = STR.log.welcome.replace("{name}", playerName);
     game = 2;
   } else {
-    $("eventLog").value = `Round ${game}`;
+    $("eventLog").value = STR.log.roundHeader.replace("{n}", game);
     game += 1;
     logMessage(
-      `***** Tournament table *****\n` +
-      `${race1} - ${points1}\n${playerName} - ${points3}\n${race2} - ${points2}\n` +
-      `************************************************************`,
+      STR.log.tournamentTable
+        .replace("{race1}", race1)
+        .replace("{points1}", points1)
+        .replace("{player}", playerName)
+        .replace("{points3}", points3)
+        .replace("{race2}", race2)
+        .replace("{points2}", points2),
     );
   }
   updateScore();
@@ -488,7 +495,7 @@ const clearLog = () => {
 
 const updateScore = () => {
   score = scoreHand(cards, playerFieldValue);
-  logMessage(`- Your current score: ${score}`);
+  logMessage(STR.log.yourScore.replace("{score}", score));
 };
 
 // -----------------------------------------------------------------------------
@@ -498,12 +505,12 @@ const updateScore = () => {
 const checkBomb = () => {
   if (bomb === 1) return;
   if (score === 0 || score > PURE_SABACC || score < -PURE_SABACC) {
-    showToast("You bombed!", "error");
+    showToast(STR.toast.bomb, "error");
     $("turnBtn").disabled = true;
     passed = 1;
     bomb = 1;
   } else if (score === PURE_SABACC || score === -PURE_SABACC) {
-    showToast("Pure Sabacc!", "success");
+    showToast(STR.toast.pureSabacc, "success");
     $("turnBtn").disabled = true;
     passed = 1;
     bomb = 1;
@@ -516,12 +523,12 @@ const checkBomb = () => {
 
 const msg = (inputScore) => {
   if (inputScore === 0 || inputScore > PURE_SABACC || inputScore < -PURE_SABACC) {
-    return " bombed :(";
+    return STR.roundResult.bomb;
   }
   if (inputScore === PURE_SABACC || inputScore === -PURE_SABACC) {
-    return " Pure Sabacc!";
+    return STR.roundResult.pureSabacc;
   }
-  return ` scored ${Math.abs(inputScore)} pts.`;
+  return STR.roundResult.valid.replace("{points}", Math.abs(inputScore));
 };
 
 const scoreRound = () => {
@@ -567,28 +574,28 @@ const cpuTurn = (raceName, cpuScore, handCards, handLocs, slotIds, passFlag) => 
   const threshold = cpuPassThreshold(raceName);
   if (cpuWantsToDraw(cpuScore, threshold)) {
     if (deckRemaining(deck) === 0) {
-      logMessage(`- ${raceName} passes (deck depleted)`);
+      logMessage(STR.log.cpuPassesDeckDepleted.replace("{race}", raceName));
       return { passed: true, score: cpuScore };
     }
     const card = drawFromDeck(deck);
     const value = convert(card);
     const cardName = compile(card);
-    logMessage(`- ${raceName} drew card "${cardName}"`);
+    logMessage(STR.log.cpuDrew.replace("{race}", raceName).replace("{card}", cardName));
     const slot = placeCard(handCards, handLocs, slotIds, value, card, cardName);
     if (slot === 4) {
-      logMessage(`- ${raceName} passes`);
+      logMessage(STR.log.cpuPasses.replace("{race}", raceName));
       return { passed: true, score: scoreHand(handCards, EMPTY) };
     }
     return { passed: false, score: scoreHand(handCards, EMPTY) };
   }
-  logMessage(`- ${raceName} passes`);
+  logMessage(STR.log.cpuPasses.replace("{race}", raceName));
   return { passed: true, score: cpuScore };
 };
 
 const humanTurn = () => {
   if (passed === 1) return;
   if (deckRemaining(deck) === 0) {
-    logMessage("- Deck depleted — no more draws");
+    logMessage(STR.log.deckDepletedNoDraw);
     $("turnBtn").disabled = true;
     passed = 1;
     return;
@@ -596,7 +603,7 @@ const humanTurn = () => {
   const card = drawFromDeck(deck);
   const value = convert(card);
   const cardName = compile(card);
-  logMessage(`- You drew card "${cardName}"`);
+  logMessage(STR.log.youDrew.replace("{card}", cardName));
   const slot = placeCard(cards, cardFiles, ["playerCard2", "playerCard3", "playerCard4"], value, card, cardName);
   if (slot === 4) {
     $("turnBtn").disabled = true;
@@ -605,7 +612,7 @@ const humanTurn = () => {
 };
 
 const turn = () => {
-  logMessage("************************************************************");
+  logMessage(STR.log.separator);
   const r1 = cpuTurn(race1, score1, cards1, cardFiles1, ["cpu1Card2", "cpu1Card3", "cpu1Card4"], cpu1Passed);
   cpu1Passed = r1.passed ? 1 : cpu1Passed;
   score1 = r1.score;
@@ -640,7 +647,13 @@ const pass = () => {
   score2 = scoreHand(cards2, cpu2FieldValue);
 
   showToast(
-    `Round over! ${race1}${msg(score1)} | ${playerName}${msg(score)} | ${race2}${msg(score2)}`,
+    STR.toast.roundOver
+      .replace("{race1}", race1)
+      .replace("{score1}", msg(score1))
+      .replace("{player}", playerName)
+      .replace("{score}", msg(score))
+      .replace("{race2}", race2)
+      .replace("{score2}", msg(score2)),
     "info",
   );
   scoreRound();
@@ -650,11 +663,11 @@ const pass = () => {
   if (winner.index < 0) {
     gamer();
   } else if (winner.tie) {
-    showToast("Tournament ends in a tie!", "info");
+    showToast(STR.toast.tie, "info");
     setTimeout(ref, 2000);
   } else {
     const names = [cpu1Name, cpu2Name, playerName];
-    showToast(`${names[winner.index]} wins the tournament!`, "success");
+    showToast(STR.toast.winner.replace("{name}", names[winner.index]), "success");
     setTimeout(ref, 3000);
   }
 };
@@ -704,7 +717,7 @@ const gamer = () => {
   cpu1Passed = 0;
   cpu2Passed = 0;
   playerName = $("nameInput").value;
-  if (playerName === "") playerName = "Player";
+  if (playerName === "") playerName = STR.defaultPlayerName;
   $("turnBtn").disabled = false;
   setAlt("playerAvatar", playerName);
   $("startPanel").style.display = "none";
@@ -739,9 +752,9 @@ const resetRound = () => {
   deck = buildDeck();
 
   for (const id of ["playerField", "cpu1Field", "cpu2Field"]) setImg(id, ASSET.field);
-  setAlt("playerField", "Your interference field");
-  setAlt("cpu1Field", "Opponent's interference field");
-  setAlt("cpu2Field", "Opponent's interference field");
+  setAlt("playerField", STR.alt.yourField);
+  setAlt("cpu1Field", STR.alt.opponentField);
+  setAlt("cpu2Field", STR.alt.opponentField);
   for (const id of ["playerCard0", "playerCard1", "playerCard2", "playerCard3", "playerCard4"]) setImg(id, ASSET.blank);
   for (const id of ["cpu1Card0", "cpu1Card1", "cpu2Card0", "cpu2Card1"]) setImg(id, ASSET.wallp);
   for (const id of ["cpu1Card2", "cpu1Card3", "cpu1Card4", "cpu2Card2", "cpu2Card3", "cpu2Card4"]) setImg(id, ASSET.blank);
@@ -777,8 +790,8 @@ const opps = () => {
   setImg("cpu2Avatar", avatarFor(race2));
   setAlt("cpu2Avatar", race2);
 
-  logMessage(`- Your opponents are ${cpu1Name} and ${cpu2Name}`);
-  logMessage(`- Your first pair has been dealt`);
+  logMessage(STR.log.opponents.replace("{cpu1}", cpu1Name).replace("{cpu2}", cpu2Name));
+  logMessage(STR.log.firstPair);
   opponentsRolled = true;
 };
 
@@ -801,9 +814,10 @@ const cpuInterai = (favorites, handCards, handLocs, fieldValue, fieldUsed, field
         handCards[ij] = 0;
         handLocs[ij] = "field.gif";
         const cardName = compile(savedLoc);
+        const toOppField = STR.alt.cardToOpponentField.replace("{card}", cardName);
         setImg(fieldId, `assets/cards/${savedLoc}`);
-        setAlt(fieldId, `${cardName} -> opponent's interference field`);
-        setAlt(`${slotIdPrefix}${ij}`, `${cardName} -> opponent's interference field`);
+        setAlt(fieldId, toOppField);
+        setAlt(`${slotIdPrefix}${ij}`, toOppField);
         setImg(`${slotIdPrefix}${ij}`, ASSET.field);
         return { fieldValue: savedValue, fieldUsed: 1 };
       }
@@ -837,7 +851,7 @@ const moveToField = (slotIdx) => {
   if (isSlotEmpty) return;
 
   if (playerFieldValue !== EMPTY) {
-    showToast("Interference field is occupied!", "error");
+    showToast(STR.toast.fieldOccupied, "error");
     return;
   }
   playerFieldValue = cards[slotIdx];
@@ -845,9 +859,10 @@ const moveToField = (slotIdx) => {
   blankedImgId = clickedImgId;
   interSavedFile = cardFiles[slotIdx];
   const cardName = compile(cardFiles[slotIdx]);
+  const toYourField = STR.alt.cardToYourField.replace("{card}", cardName);
   setImg("playerField", `assets/cards/${cardFiles[slotIdx]}`);
-  setAlt("playerField", `${cardName} -> interference field`);
-  setAlt(`playerCard${slotIdx}`, `${cardName} -> interference field`);
+  setAlt("playerField", toYourField);
+  setAlt(`playerCard${slotIdx}`, toYourField);
   $(clickedImgId).src = ASSET.field;
   cardFiles[slotIdx] = "jpg";
   cards[slotIdx] = 0;
@@ -855,14 +870,14 @@ const moveToField = (slotIdx) => {
 
 const retrieveFromField = () => {
   if (playerFieldValue === EMPTY) {
-    showToast("Nothing to put back — move a card to the field first", "error");
+    showToast(STR.toast.nothingToRetrieve, "error");
     return;
   }
   if (cards[interIdx] === 0) cards[interIdx] = playerFieldValue;
   cardFiles[interIdx] = interSavedFile;
   const cardName = compile(interSavedFile);
   setImg("playerField", ASSET.field);
-  setAlt("playerField", "Your interference field");
+  setAlt("playerField", STR.alt.yourField);
   setAlt(`playerCard${interIdx}`, cardName);
   $(blankedImgId).src = `assets/cards/${interSavedFile}`;
   playerFieldValue = EMPTY;
@@ -954,14 +969,14 @@ const setupDragAndDrop = () => {
 const generate = () => {
   const picked = pickGeneratorCards(deck);
   if (!picked) {
-    logMessage("- Random generator: deck depleted");
+    logMessage(STR.log.generatorDeckDepleted);
     return;
   }
   const { g1, g2 } = picked;
   const q1 = compile(g1);
   const q2 = compile(g2);
 
-  logMessage(`- Random generator replaced card "${q1}" with "${q2}"`);
+  logMessage(STR.log.generatorReplaced.replace("{g1}", q1).replace("{g2}", q2));
   $("genCard1").value = q1;
   $("genCard2").value = q2;
 
@@ -1032,16 +1047,6 @@ const setupKeyboard = () => {
 };
 
 // -----------------------------------------------------------------------------
-// Intro video — autoplay muted, dismiss after 6 seconds
-// -----------------------------------------------------------------------------
-
-const setupIntroVideo = () => {
-  const overlay = $("introVideo");
-  if (!overlay) return;
-  setTimeout(() => overlay.classList.add("hidden"), 6000);
-};
-
-// -----------------------------------------------------------------------------
 // Init — runs on script load in the browser
 // -----------------------------------------------------------------------------
 
@@ -1049,11 +1054,9 @@ const setupIntroVideo = () => {
 // until the DOM is ready.
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    setupIntroVideo();
     setupKeyboard();
   });
 } else {
-  setupIntroVideo();
   setupKeyboard();
 }
 

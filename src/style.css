@@ -22,28 +22,6 @@ body {
   justify-content: center;
 }
 
-/* ----- Intro video overlay ----- */
-.intro-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #000;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.intro-overlay.hidden {
-  display: none;
-}
-.intro-video {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-}
-
 /* ----- Hyperlinks ----- */
 a:link, a:active, a:visited {
   color: yellow;
@@ -67,6 +45,16 @@ a:hover {
 /* ----- Start screen ----- */
 #startPanel .screen-inner {
   text-align: center;
+}
+#startPanel .title {
+  font-size: 36px;
+}
+#startPanel .label {
+  font-size: 28px;
+}
+#startPanel .formControl {
+  font-size: 24px;
+  padding: 4px 8px;
 }
 .form-row {
   margin: 8px 0;

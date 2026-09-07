@@ -1,12 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-// program.js is a plain script that attaches pure functions to window.Sabacc.
-// In Node we shim window, require the script, then pull the exports off it.
+// game.js is a plain script that attaches pure functions to window.Sabacc.
+// In Node we shim window, require the i18n loader + English locale, then
+// require game.js, then pull the exports off window.Sabacc.
 globalThis.window = globalThis;
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-require("../src/program.js");
+require("../src/i18n/loader.js");
+require("../src/i18n/en.js");
+require("../src/game.js");
 const {
   buildDeck,
   convert,
