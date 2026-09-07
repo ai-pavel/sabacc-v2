@@ -53,6 +53,24 @@
       musicOff: "オフ",
       rules: "\uD83D\uDCDC ゲームルール",
       rulesTitle: "サバックのルール",
+      mainMenu: "メインメニュー",
+      playAgain: "もう一度プレイ",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "勝利!",
+      defeat: "敗北",
+      tie: "引き分け!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "トーナメント優勝!",
+      youLose: "{name} がトーナメント優勝。",
+      tieMessage: "トーナメントは引き分け!",
+      yourScore: "あなたのスコア: {score}",
+      rounds: "プレイしたラウンド: {rounds}",
+      gameTime: "プレイ時間: {time}",
     },
 
     hof: {

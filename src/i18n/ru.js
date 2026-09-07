@@ -53,6 +53,24 @@
       musicOff: "Выкл",
       rules: "\uD83D\uDCDC Правила игры",
       rulesTitle: "Правила игры в Сабакк",
+      mainMenu: "Главное меню",
+      playAgain: "Играть снова",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "Победа!",
+      defeat: "Поражение",
+      tie: "Ничья!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "Вы выиграли турнир!",
+      youLose: "{name} выиграл турнир.",
+      tieMessage: "Турнир закончился ничьёй!",
+      yourScore: "Ваш счёт: {score}",
+      rounds: "Сыграно раундов: {rounds}",
+      gameTime: "Время игры: {time}",
     },
 
     hof: {

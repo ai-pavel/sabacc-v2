@@ -53,6 +53,24 @@
       musicOff: "No",
       rules: "\uD83D\uDCDC Regole del gioco",
       rulesTitle: "Regole del Sabacc",
+      mainMenu: "Menu principale",
+      playAgain: "Gioca ancora",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "Vittoria!",
+      defeat: "Sconfitta",
+      tie: "Pareggio!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "Hai vinto il torneo!",
+      youLose: "{name} ha vinto il torneo.",
+      tieMessage: "Il torneo è finito in parità!",
+      yourScore: "Il tuo punteggio: {score}",
+      rounds: "Turni giocati: {rounds}",
+      gameTime: "Durata: {time}",
     },
 
     hof: {

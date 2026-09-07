@@ -149,6 +149,41 @@ a:hover {
   width: 150px;
 }
 
+/* ----- End screen (win / lose / tie) ----- */
+.end-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.end-inner {
+  text-align: center;
+  max-width: 500px;
+}
+.end-emoji {
+  font-size: 72px;
+  margin-bottom: 8px;
+}
+.end-title {
+  font-size: 36px;
+  color: yellow;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.end-panel {
+  margin-bottom: 20px;
+}
+.end-name {
+  font-size: 22px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+.end-stats {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.8;
+}
+
 /* ----- Credits screen ----- */
 .credits-screen {
   position: fixed;

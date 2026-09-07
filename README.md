@@ -1,6 +1,6 @@
 # Sabacc Tournament
 
-A 3-player Sabacc card game (you + 2 CPU opponents) set in the Star Wars
+A 5-player Sabacc card game (you + 4 CPU opponents) set in the Star Wars
 universe, originally written in 2005 by Revan (idea + code) and
 Darth Favourite (graphics), and refactored for modern browsers. The
 ruleset is inspired by the Sabacc scene in James Luceno's novel
@@ -19,33 +19,69 @@ node --test
 ## Game loop pseudocode
 
 The following scheme traces every main function in `src/game.js`,
-showing how control flows from the start screen through a round and into
+showing how control flows from the main menu through a round and into
 the next. Pure rule functions (no DOM access) are marked with `·`.
 
 ```
-gamer()                              ← onClick="gamer()" on Start game
-│ read playerName from #nameInput (default "Player")
-│ read avatar from #avatarInput
-│ hide #startPanel, show #game
+INTRO VIDEO (autoplay on page load, dismiss after 6s or Skip button)
+  skipIntro()                     ← hides #introVideo overlay
+
+MAIN MENU (HoMM-style left-aligned buttons)
+  gamer()                          ← "Start Game"
+  showScreen('settingsScreen')     ← "Settings"
+  showRules()                      ← "Game Rules"
+  showHallOfFame()                 ← "Hall of Fame"
+  showCredits()                    ← "Credits"
+  exitGame()                       ← "Exit Game"
+
+SETTINGS (sub-screen, persisted in localStorage)
+  #nameInput                       ← player name (key: sabacc-player-name)
+  #musicToggle (dropdown)          ← music on/off (key: sabacc-music)
+  #winThresholdSelect              ← 500 / 1000 / 2500 / 5000 (key: sabacc-win-threshold)
+  #langSelect                      ← language picker (key: sabacc-lang)
+  resetHallOfFame()                ← "Reset Hall of Fame"
+
+HALL OF FAME (sub-screen, localStorage key: sabacc-hof)
+  renderHallOfFame()                ← top 10 by score / rounds / game time
+  hofSort(key)                      ← click column headers to re-sort
+
+GAME RULES (sub-screen, scrollable dark panel)
+  showRules()                       ← injects STR.rules.html into #rulesContent
+
+CREDITS (rolling animation screen)
+  showCredits()                     ← injects STR.credits.html, plays credits.mp3
+
+────────────────────────────────────────────────────────────────────
+gamer()                              ← "Start Game" button
+│ read playerName from #nameInput (default from STR.defaultPlayerName)
+│ savePlayerName() → localStorage
+│ reset per-round state for all players
+│ if first game: gameStartTime = Date.now(), roundCount = 1
+│ showScreen('game')
 │ startMusic()
-│   · if music checkbox checked: set #musicPlayer.src = cantina.mp3
+│   · loadMusicPref() from localStorage; if "on": set #musicPlayer.src
+│ buildGameBoard()
+│   · generates card-table, field-slots, avatar-row, tournament-scores DOM
+│   · seat order: cpu1, cpu2, human, cpu3, cpu4 (human in the middle)
 │ rollCpuFavorites()
-│   · rollFavorites() x2  →  favorites1[], favorites2[]  (10 cards each)
+│   · rollFavorites() x4  →  players[1..4].favorites[] (10 cards each)
 │ dealCards()
-│   ├─ drawFromDeck(deck) x6  →  2 cards each for player, cpu1, cpu2
+│   ├─ drawFromDeck(deck) x10  →  2 cards each for all 5 players
 │   ├─ convert(card) → numeric value, compile(card) → display name
 │   ├─ render player's cards face up, CPUs face down (wallp.gif)
 │   └─ clearLog()
 │       ├─ opps()
-│       │   · pickOpponents() → two distinct race names
-│       │   · set race1/race2, cpu1Name/cpu2Name, avatar images
-│       │   · log "Your opponents are X and Y"
+│       │   · pickOpponents() → 4 distinct race names (Fisher-Yates shuffle)
+│       │   · set players[1..4].name/race, avatar images
+│       │   · log "Your opponents are A, B, C and D"
 │       ├─ if first game: log welcome message
-│       │   else: log "Round N" + tournament table (race - points)
+│       │   else: log "Round N", increment roundCount
 │       ├─ updateScore()
-│       │   · scoreHand(cards, playerFieldValue) → score
+│       │   · scoreHand(players[0].cards, players[0].fieldValue) → score
 │       │   · log "Your current score: N"
+│       ├─ updateTournamentPanel()
 │       └─ clear generator text fields
+│ setupDragAndDrop()
 └─ game board is now interactive
 
 ────────────────────────────────────────────────────────────────────
@@ -53,191 +89,187 @@ PER TURN (player clicks "Next turn"):
 ────────────────────────────────────────────────────────────────────
 
 turn()                               ← onClick="turn()" on Next turn
-│ log separator line
-│
-│ ┌─ CPU 1: cpuTurn(race1, score1, cards1, cardFiles1, cpu1Slots, cpu1Passed)
-│ │   · cpuWantsToDraw(score, threshold)?  →  |score| < threshold && score != 0
-│ │   if yes:
-│ │     · drawFromDeck(deck) → card
-│ │     · convert(card), compile(card)
-│ │     · placeCard() → first empty slot 2→3→4
-│ │     if slot 4 filled: cpu1Passed = 1
-│ │   if no: cpu1Passed = 1, log "X passes"
-│ │
-│ ├─ Player: humanTurn()
-│ │   if player has not passed:
-│ │     · drawFromDeck(deck) → card
-│ │     · placeCard() into player's slot 2→3→4
-│ │     if slot 4 filled: disable #turnBtn, passed = 1
-│ │
-│ ├─ checkBomb()                      ← only for the player
-│ │   · score 0 / >23 / <-23  →  alert "You bombed!", disable turn, passed=1, bomb=1
-│ │   · score ±23             →  alert "Pure Sabacc!", same
-│ │
-│ ├─ CPU 2: cpuTurn(race2, score2, cards2, cardFiles2, cpu2Slots, cpu2Passed)
-│ │   (same logic as CPU 1)
-│ │
-│ ├─ cpu1InterAI()
-│ │   · scan cpu1's hand for a card in favorites1[]
-│ │   · if found and field unused: move it to cpu1's interference field
-│ │     (protected from generator swaps)
-│ │
-│ ├─ cpu2InterAI()                    (same for cpu2)
-│ │
-│ ├─ generate()                       ← the randomizer pot
-│ │   · pick g1 = random card from deck (lookup, not removed)
-│ │   · pick g2 = drawFromDeck(deck) (removed), retry if g2 == g1
-│ │   · compile(g1) → q1, compile(g2) → q2
-│ │   if g1 == g2:
-│ │     log "Random generator failed..."
-│ │   else:
-│ │     log "Random generator replaced card X with Y"
-│ │     · swapCardInLocations() for player, cpu1, cpu2
-│ │       (replace every occurrence of g1 with g2 in cardFiles[]/cards[])
-│ │     re-render any swapped card images
-│ │     updateScore()
-│ │
-│ └─ scrollLog()
+ │ log separator line
+ │
+ │ for each seat in SEAT_ORDER (cpu1, cpu2, human, cpu3, cpu4):
+ │   if seat is human:
+ │     humanTurn()
+ │       if not passed and deck not depleted:
+ │         · drawFromDeck → card, convert, compile
+ │         · placeCard() into player's slot 2→3→4
+ │         if slot 4 filled: disable #turnBtn, passed = 1
+ │     checkBomb()                      ← only for the player
+ │       · score 0 / >23 / <-23  →  toast "You bombed!", disable turn
+ │       · score ±23             →  toast "Pure Sabacc!", same
+ │   else:
+ │     cpuTurn(player, seatIdx)
+ │       · cpuWantsToDraw(score, threshold)?  →  |score| < threshold && score != 0
+ │       if yes:
+ │         · drawFromDeck → card, convert, compile
+ │         · placeCard() → first empty slot 2→3→4
+ │         if slot 4 filled: passed = 1
+ │       if no: passed = 1, log "X passes"
+ │
+ │ for each CPU seat:
+ │   cpuInterAI(player, seatIdx)
+ │     · scan hand for a card in player's favorites[]
+ │     · if found and field unused: move it to interference field
+ │       (protected from generator swaps)
+ │
+ │ generate()                          ← the randomizer pot
+ │   · pickGeneratorCards(deck) → { g1, g2 }  (g1 lookup, g2 drawn)
+ │   · compile(g1) → q1, compile(g2) → q2
+ │   · log "Random generator replaced card X with Y"
+ │   · display q1, q2 in #genCard1, #genCard2
+ │   · generatorSwap(hands, g1, g2) → swap across all 5 players
+ │   · re-render any swapped card images
+ │   · updateScore()
+ │
+ └─ scrollLog()
 
 ────────────────────────────────────────────────────────────────────
 PASS (player clicks "Pass"):
 ────────────────────────────────────────────────────────────────────
 
 pass()                               ← onClick="pass()" on Pass
-│ passed = 1
-│ do:
-│   turn()                           ← keep playing CPUs until both pass
-│ while cpu1Passed != 1 OR cpu2Passed != 1
-│
-│ reveal cpu1 and cpu2 face-down cards
-│ recompute scores
-│
-│ alert round results:
-│   "Round over! Results:
-│    <race1> <bombed|Pure Sabacc|scored N pts.>
-│    <player> <...>
-│    <race2> <...>"
-│
-│ scoreRound()
-│   · isIdiotsArray() check for each player (Idiot + 2 + 3 = Pure Sabacc)
-│   · evaluateRound(score) for each:
-│       bomb           → roundPoints -24, tournamentDelta -24
-│       pure sabacc    → roundPoints +24, tournamentDelta +46
-│       valid          → roundPoints |score|, tournamentDelta |score|
-│   · add tournament deltas to points1/points2/points3
-│   · applyLeaderBonus():
-│       if no pure sabacc this round:
-│         find highest roundPoints scorer
-│         if unique: +roundPoints/2 to their tournament total
-│         if tied: no bonus
-│
-│ resetRound()
-│   · clear all hands, card files, field values, pass flags, scores
-│   · reset race1/race2 to "none" (so opps() re-rolls next round)
-│   · rebuild deck = buildDeck()
-│   · reset card images to blank/wallp, field images to field.gif
-│
-│ decideWinner([points1, points2, points3])
-│   · find any player > 500
-│   · if unique winner: alert "Victory ... went to <name>!", ref() (reload)
-│   · if tie at top:    alert "Tie at the top!", ref()
-│   · if no winner yet: gamer() → deal next round
-│
-└─ ref() = self.location.reload()  OR  gamer() = start next round
+ │ players[0].passed = 1
+ │ do:
+ │   turn()                           ← keep playing CPUs until all pass
+ │ while any CPU has passed != 1
+ │
+ │ reveal all CPU face-down cards
+ │ recompute all scores
+ │
+ │ toast round results:
+ │   "Round over! <name1><result> | <name2><result> | ... | <name5><result>"
+ │
+ │ scoreRound()
+ │   · isIdiotsArray() check for each player (Idiot + 2 + 3 = Pure Sabacc)
+ │   · evaluateRound(score) for each:
+ │       bomb           → roundPoints -24, tournamentDelta -24
+ │       pure sabacc    → roundPoints +24, tournamentDelta +46
+ │       valid          → roundPoints |score|, tournamentDelta |score|
+ │   · add tournament deltas to each player's points
+ │   · applyLeaderBonus():
+ │       if no pure sabacc this round:
+ │         find highest roundPoints scorer
+ │         if unique: +roundPoints/2 to their tournament total
+ │         if tied: no bonus
+ │   · updateTournamentPanel()
+ │
+ │ resetRound()
+ │   · clear all hands, card files, field values, pass flags, scores
+ │   · rebuild deck = buildDeck()
+ │   · reset card images to blank/wallp, field images to field.gif
+ │
+ │ decideWinner(players.map(p => p.points))
+ │   · find any player > WIN_THRESHOLD (configurable: 500/1000/2500/5000)
+ │   if no winner yet:
+ │     gamer() → deal next round
+ │   else:
+ │     recordHallOfFame({ name, score, rounds, time })
+ │     showEndScreen(winner)
+ │       · victory: 🏆 "Victory!" / defeat: 🔙 "Defeat" / tie: 🧱 "Tie!"
+ │       · show winner name, player's score, rounds, game time
+ │       · buttons: "Main Menu" (resetGameState + showScreen) / "Play Again" (reload)
 
 ────────────────────────────────────────────────────────────────────
-PLAYER INTERFERENCE FIELD (clicking cards):
+PLAYER INTERFERENCE FIELD (drag and drop):
 ────────────────────────────────────────────────────────────────────
 
-moveToField(slotIdx, imgSrc, clickedImgId)   ← onClick on a player card
-│ if clicked slot is empty: return (no-op)
-│ if player's field is empty:
-│   move card value → playerFieldValue
-│   move card file → saved, slot cleared
-│   render field image with the card, blank the slot
-│   remember which slot/element was blanked
-│ else:
-│   alert "Interference field is occupied!"
+moveToField(slotIdx)           ← drag a player card to the field
+ │ if slot is empty: return (no-op)
+ │ if field is occupied: toast "Interference field is occupied!"
+ │ else:
+ │   move card value → fieldValue
+ │   render field image with the card, blank the slot
+ │   remember which slot was blanked
 
-retrieveFromField(imgSrc)                     ← onClick on the field image
-│ if field is empty:
-│   alert "Nothing to put back, try moving it to the interference field first"
-│ else:
-│   restore the saved card value back to its original slot
-│   re-render the slot, reset field image
-│   clear playerFieldValue
+retrieveFromField()             ← click on the field image
+ │ if field is empty: toast "Nothing to put back..."
+ │ else:
+ │   restore the saved card back to its original slot
+ │   re-render the slot, reset field image
 
 ────────────────────────────────────────────────────────────────────
 PURE RULE FUNCTIONS (no DOM access, exported for testing):
 ────────────────────────────────────────────────────────────────────
 
-· buildDeck()            → 76 card filenames (1-15 x 4 suits + 16 face cards)
-· convert(card)          → numeric value (Idiot=0, Queen=±2, ..., Senator=±17)
-· compile(card)          → "N of <Suit>" or "<Face> (+/-)" or "Idiot"
-· scoreHand(cards, field)→ sum of non-empty slots + field value
-· evaluateRound(score)   → { roundPoints, tournamentDelta }
-· applyLeaderBonus(pts)  → adjusted tournament points with +best/2 bonus
-· decideWinner(points)   → { index, tie, points } for first > 500
-· cpuWantsToDraw(score)  → |score| < threshold && score != 0
-· pickOpponents()        → two distinct race names
-· swapCardInLocations()  → new { locs, cards } with oldCard replaced by newCard
-· randomGeneratorStep()  → { swapped, g1, g2, deck } (no card leak)
-· rollFavorites()        → 10 random card filenames for CPU field AI
+ · buildDeck()            → 76 card filenames (1-15 x 4 suits + 16 face cards)
+ · convert(card)          → numeric value (Idiot=0, Queen=±2, ..., Senator=±17)
+ · compile(card)          → "N of <Suit>" or "<Face> (+/-)" or "Idiot"
+ · scoreHand(cards, field)→ sum of non-empty slots + field value
+ · evaluateRound(score)   → { roundPoints, tournamentDelta }
+ · applyLeaderBonus(pts)  → adjusted tournament points with +best/2 bonus
+ · decideWinner(points)   → { index, tie, points } for first > WIN_THRESHOLD
+ · cpuWantsToDraw(score)  → |score| < threshold && score != 0
+ · pickOpponents()        → 4 distinct race names
+ · swapCardInLocations()  → new { locs, cards } with oldCard replaced by newCard
+ · randomGeneratorStep()  → { swapped, g1, g2, deck } (no card leak)
+ · generatorSwap(hands)    → swap across arbitrary number of players
+ · pickGeneratorCards()   → { g1, g2 } (g1 lookup, g2 drawn from deck)
+ · rollFavorites()        → 10 random card filenames for CPU field AI
+ · refreshCpuRaces()      → rebuild CPU_RACES from STR.cpuRaces (locale-aware)
 ```
 
 ## Game loop
 
 ### 1. Main menu
 
-The main menu shows five HoMM-style buttons (left-aligned): **Start Game**,
-**Settings**, **Hall of Fame**, **Credits**, **Exit Game**.
+The main menu shows six HoMM-style buttons (left-aligned, with emoji
+prefixes): 🎲 **Start Game**, ⚙️ **Settings**, 📜 **Game Rules**, 🏆 **Hall
+of Fame**, 🎬 **Credits**, 🚪 **Exit Game**.
 
 - **Start Game** launches a tournament immediately.
-- **Settings** opens a sub-screen with player name, music toggle, language
-  picker, and a "Reset Hall of Fame" button.
-- **Hall of Fame** shows the top 10 tournament results (sortable by score,
-  rounds, or game time), persisted in `localStorage`.
-- **Credits** opens the rolling credits page.
+- **Settings** opens a sub-screen with player name, music dropdown,
+  win-threshold dropdown (500/1000/2500/5000), language picker, and a
+  "Reset Hall of Fame" button. All settings are persisted in
+  `localStorage`.
+- **Game Rules** shows a scrollable dark panel with the full rules
+  (deck composition, scoring, generator, interference field, tournament).
+- **Hall of Fame** shows the top 10 tournament results (sortable by
+  score, rounds, or game time), persisted in `localStorage`.
+- **Credits** opens a rolling credits animation with music.
 - **Exit Game** attempts to close the tab.
 
-Clicking **Start game** calls `gamer()`, which hides the menu, reveals the
-game board, starts the music (if enabled), rolls each CPU's "favorite cards"
-list, and deals the opening hands. The game timer starts on first launch.
+Clicking **Start Game** calls `gamer()`, which hides the menu, builds the
+game board, starts the music (if enabled), rolls each CPU's "favorite
+cards" list, and deals the opening hands. The game timer starts on first
+launch.
 
 ### 2. Opponent selection
 
-`opps()` picks two distinct CPU races at random from:
+`opps()` picks 4 distinct CPU races at random from 5 possible races using
+a Fisher–Yates shuffle. Race names are locale-dependent (translated in
+each `STR.cpuRaces` array). On language change, `CPU_RACES` is rebuilt
+via `refreshCpuRaces()` and the `i18n.onLocaleChange` hook.
 
-| Race | Pass threshold (±) | Behavior |
-|------|-------------------|----------|
-| Human | 15 | cautious |
-| Jedi-Killer | 16 | |
-| Gambler | 17 | |
-| Smuggler | 18 | |
-| Bounty Hunter | 19 | boldest |
+CPU pass thresholds (fixed, not shown in rules — left as a game mystery):
 
 The threshold is the |score| at which that CPU stops drawing and passes.
-CPU avatars are assigned based on race index (`cpu1.gif` through `cpu5.gif`).
+CPU avatars are assigned based on race index (`cpu1.gif` through
+`cpu5.gif`).
 
 ### 3. Dealing
 
-`dealCards()` draws 2 cards each for the player and both CPUs from a
-freshly built 76-card deck. The player's cards are face up; CPU cards are
-face down (shown as `wallp.gif`). The event log is initialized with the
-player's name and a welcome message.
+`dealCards()` draws 2 cards each for all 5 players from a freshly built
+76-card deck. The player's cards are face up; CPU cards are face down
+(shown as `wallp.gif`). The event log is initialized with the player's
+name and a welcome message.
 
 ### 4. Turn structure
 
 Each click of **Next turn** runs `turn()`:
 
-1. **CPU 1** draws a card (if it hasn't passed and |score| < threshold)
-2. **Player** draws a card into their first empty slot (2 → 3 → 4)
-3. **CPU 2** draws a card (same logic as CPU 1)
-4. **CPU interference-field AI** runs for both CPUs (`cpu1InterAI()`,
-   `cpu2InterAI()`) — each CPU moves a card to its interference field if
-   that card matches its pre-rolled favorites list
-5. **Generator** fires (`generate()`) — see below
-6. **Bomb check** runs for the player (`checkBomb()`)
+1. **All seats in table order** (cpu1, cpu2, human, cpu3, cpu4):
+   - CPUs draw a card if they haven't passed and |score| < threshold
+   - Human draws a card into their first empty slot (2 → 3 → 4)
+   - Bomb check runs after the human's draw
+2. **CPU interference-field AI** runs for all 4 CPUs — each CPU moves a
+   card to its interference field if that card matches its pre-rolled
+   favorites list
+3. **Generator** fires (`generate()`) — see below
+4. Final bomb check after the generator
 
 A CPU automatically passes when its 5th card slot fills or its |score|
 reaches its threshold. The player auto-passes when their 5th slot fills,
@@ -249,7 +281,8 @@ After every turn, the random generator picks two cards (g1, g2) from the
 deck. If they differ, every player who holds g1 has it replaced with g2 —
 across all 5 slots and the interference field. If g1 == g2 the generator
 "fails" and nothing happens. The swap is logged and shown in the two
-generator text fields at the top of the board.
+generator text fields at the top of the board (left = replaced card,
+right = replacement).
 
 ### 6. Interference field
 
@@ -257,9 +290,9 @@ Each player has an interference field that holds one card. A card in the
 field still counts toward the hand's score but is protected from the
 generator's swaps.
 
-- **Player**: click a card to move it to your field
-  (`moveToField()`); click your field image to retrieve it
-  (`retrieveFromField()`). Only one card at a time.
+- **Player**: drag a card to your field (`moveToField()`); click your
+  field image to retrieve it (`retrieveFromField()`). Only one card at
+  a time.
 - **CPUs**: automatically move a favorite card to their field when one
   appears in their hand (`cpuInterAI()`).
 
@@ -267,10 +300,12 @@ generator's swaps.
 
 When the player clicks **Pass**, `pass()` runs:
 
-1. Sets `passed = 1` and keeps calling `turn()` until both CPUs have passed
-2. Reveals both CPUs' face-down cards
-3. Shows an alert with each player's round result
-4. Calls `scoreRound()` to update tournament points
+1. Sets `passed = 1` and keeps calling `turn()` until all 4 CPUs have
+   passed
+2. Reveals all CPUs' face-down cards
+3. Shows a toast with each player's round result
+4. Calls `scoreRound()` to update tournament points and the standings
+   panel
 5. Calls `resetRound()` to clear the board for the next round
 6. Checks for a tournament winner via `decideWinner()`
 
@@ -291,11 +326,25 @@ total. Ties for highest get no bonus.
 
 **Idiot's Array**: Idiot (0) + 2 + 3 = 23 counts as Pure Sabacc.
 
-### 9. Tournament win
+### 9. Tournament end
 
 Tournament points accumulate across rounds. The first player to exceed
-**500** points wins. If two players cross 500 in the same round, the
-higher total wins; an exact tie triggers a tie message.
+the **win threshold** (configurable in Settings: 500, 1000, 2500, or
+5000) ends the tournament. If two players cross the threshold in the same
+round, the higher total wins; an exact tie triggers a tie.
+
+When the tournament ends, the human player's result is recorded to the
+Hall of Fame (name, score, rounds, game time) and a dedicated **end
+screen** is shown:
+
+- **Victory** (🏆) — the human player won
+- **Defeat** (🔙) — a CPU opponent won
+- **Tie** (🧱) — the tournament ended in a tie
+
+The end screen shows the winner's name, the player's final score, rounds
+played, and game time. Two buttons are offered: **Main Menu** (resets
+game state and returns to the main menu) and **Play Again** (reloads the
+page).
 
 ### 10. Cards
 
@@ -316,36 +365,47 @@ The 76-card deck:
   | a1/a2 | Ace | +15 / -15 |
   | s1/s2 | Senator | +17 / -17 |
 
+### 11. Internationalization
+
+The game supports 10 languages (English, Russian, Spanish, French,
+German, Polish, Italian, Portuguese, Japanese, Chinese). All human-facing
+strings live in `src/i18n/*.js` and are exposed on `window.STR` by the
+i18n loader. The language picker is in Settings, and the choice is
+persisted in `localStorage`. DOM elements with `data-i18n` attributes
+are automatically translated on locale change.
+
 ## Project structure
 
 ```
-index.html          Game page (start screen + game board)
-credits.html        Rolling end-credits screen with music
+index.html              Game page (intro video, main menu, settings,
+                        rules, hall of fame, credits, game, end screen)
 src/
-  game.js           Game logic (pure rules + DOM coupling)
-  style.css         Layout and theming
+  game.js               Game logic (pure rules + DOM coupling)
+  style.css             Layout and theming
   i18n/
-    loader.js       i18n registry + window.STR accessor
-    init.js         Language picker + DOM [data-i18n] applier
-    en.js           English (🇬🇧)
-    ru.js           Russian (🇷🇺 Русский)
-    es.js           Spanish (🇪🇸 Español)
-    fr.js           French (🇫🇷 Français)
-    de.js           German (🇩🇪 Deutsch)
-    pl.js           Polish (🇵🇱 Polski)
-    it.js           Italian (🇮🇹 Italiano)
-    pt.js           Portuguese (🇵🇹 Português)
-    ja.js           Japanese (🇯🇵 日本語)
-    zh.js           Simplified Chinese (🇨🇳 简体中文)
+    loader.js           i18n registry + window.STR accessor + onLocaleChange hook
+    init.js             Language picker + DOM [data-i18n] applier
+    en.js               English (🇬🇧)
+    ru.js               Russian (🇷🇺 Русский)
+    es.js               Spanish (🇪🇸 Español)
+    fr.js               French (🇫🇷 Français)
+    de.js               German (🇩🇪 Deutsch)
+    pl.js               Polish (🇵🇱 Polski)
+    it.js               Italian (🇮🇹 Italiano)
+    pt.js               Portuguese (🇵🇹 Português)
+    ja.js               Japanese (🇯🇵 日本語)
+    zh.js               Simplified Chinese (🇨🇳 简体中文)
 assets/
-  cards/            76 card faces + blank.gif + field.gif + wallp.gif
-  audio/            cantina.mp3 (in-game) + credits.mp3 (credits screen)
-  avatars/          CPU race avatars (cpu1-5.gif) + default.gif + blank.gif
-  images/           bg.jpg (starfield) + table.jpg (felt) + bith.jpg (log bg)
-  ui/               gb.gif, ib.gif, back3.gif, generator.gif (panels)
+  cards/                76 card faces + blank.gif + field.gif + wallp.gif
+  audio/                cantina.mp3 (in-game) + credits.mp3 (credits screen)
+  avatars/              CPU race avatars (cpu1-5.gif) + default.gif + blank.gif
+  images/               bg.jpg (starfield) + table.jpg (felt) + bith.jpg (log bg)
+  ui/                   gb.gif, ib.gif, back3.gif, generator.gif (panels)
+  video/                intro_video.mp4 (opening animation)
+  prompts/              Video generation prompts
 test/
-  rules.test.js     Unit tests (run with `node --test`)
-analysis.md         Original 2005 code analysis and bug inventory
+  rules.test.js         Unit tests (run with `node --test`)
+analysis.md             Original 2005 code analysis and bug inventory
 ```
 
 ## Credits
@@ -357,6 +417,7 @@ analysis.md         Original 2005 code analysis and bug inventory
 - **Music**: Mark Griskey (KOTOR II: Iziz Cantina) / John Williams (Star Wars: End Credits)
 - **Thanks**: James Luceno, for the book *Agents of Chaos I: Hero's Trial*
 - **Special thanks**: Denis Konstantin (Sabacc Tour table)
+- **Packaged with**: [Natata eBook Compiler](https://web.archive.org/web/20021123121929/http://natata.hn3.net/)
 - **And also**: George Lucas, for the *Star Wars* saga; Microsoft, for Notepad
 
 All rights, design, etc. belong to Lucasfilm, Ltd. Star Wars and related

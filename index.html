@@ -25,7 +25,7 @@
 <!-- ============ Intro video overlay (with skip button) ============ -->
 <div id="introVideo" class="intro-overlay">
   <video id="introPlayer" class="intro-video" autoplay muted playsinline>
-    <source src="assets/video/background_video.mp4" type="video/mp4">
+    <source src="assets/video/intro_video.mp4" type="video/mp4">
   </video>
   <input type="button" class="intro-skip" onClick="skipIntro()" value="Skip" data-i18n="ui.skip">
 </div>
@@ -118,6 +118,22 @@
   <audio loop autoplay id="creditsAudio">
     <source src="assets/audio/credits.mp3" type="audio/mpeg">
   </audio>
+</div>
+
+<!-- ============ Win / Lose / Tie screens ============ -->
+<div id="endScreen" class="screen end-screen" style="display:none">
+  <div class="screen-inner end-inner">
+    <div class="end-emoji" id="endEmoji"></div>
+    <p class="end-title" id="endTitle"></p>
+    <div class="sub-panel end-panel">
+      <p class="end-name" id="endWinner"></p>
+      <div class="end-stats" id="endStats"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel'); resetGameState()" value="Main Menu" data-i18n="ui.mainMenu">
+      <input type="button" class="formControl" onClick="location.reload()" value="Play Again" data-i18n="ui.playAgain">
+    </div>
+  </div>
 </div>
 
 <!-- ============ Game screen ============ -->

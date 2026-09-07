@@ -53,6 +53,24 @@
       musicOff: "关",
       rules: "\uD83D\uDCDC 游戏规则",
       rulesTitle: "萨巴克规则",
+      mainMenu: "主菜单",
+      playAgain: "再玩一次",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "胜利!",
+      defeat: "失败",
+      tie: "平局!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "你赢得了锦标赛!",
+      youLose: "{name} 赢得了锦标赛。",
+      tieMessage: "锦标赛以平局结束!",
+      yourScore: "你的分数: {score}",
+      rounds: "已玩回合: {rounds}",
+      gameTime: "游戏时长: {time}",
     },
 
     hof: {

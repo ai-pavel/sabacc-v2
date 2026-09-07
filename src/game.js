@@ -790,13 +790,7 @@ const pass = () => {
       rounds: roundCount,
       time: Date.now() - gameStartTime,
     });
-    if (winner.tie) {
-      showToast(STR.toast.tie, "info");
-      setTimeout(ref, 2000);
-    } else {
-      showToast(STR.toast.winner.replace("{name}", players[winner.index].name), "success");
-      setTimeout(ref, 3000);
-    }
+    showEndScreen(winner);
   }
 };
 
@@ -1231,6 +1225,69 @@ const skipIntro = () => {
 };
 
 // -----------------------------------------------------------------------------
+// End screen (win / lose / tie)
+// -----------------------------------------------------------------------------
+
+const formatTime = (ms) => {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, "0")}`;
+};
+
+const showEndScreen = (winner) => {
+  const humanWon = winner.index === 0;
+  const isTie = winner.tie;
+
+  // Emoji + title
+  $("endEmoji").textContent = isTie ? STR.end.tieEmoji : (humanWon ? STR.end.victoryEmoji : STR.end.defeatEmoji);
+  $("endTitle").textContent = isTie ? STR.end.tie : (humanWon ? STR.end.victory : STR.end.defeat);
+
+  // Winner name
+  if (isTie) {
+    $("endWinner").textContent = STR.end.tieMessage;
+  } else if (humanWon) {
+    $("endWinner").textContent = STR.end.youWin;
+  } else {
+    $("endWinner").textContent = STR.end.youLose.replace("{name}", players[winner.index].name);
+  }
+
+  // Stats
+  const time = Date.now() - gameStartTime;
+  $("endStats").innerHTML =
+    STR.end.yourScore.replace("{score}", players[0].points) + "<br>" +
+    STR.end.rounds.replace("{rounds}", roundCount) + "<br>" +
+    STR.end.gameTime.replace("{time}", formatTime(time));
+
+  showScreen("endScreen");
+};
+
+const resetGameState = () => {
+  // Reset tournament state so a new game starts fresh
+  game = 0;
+  gameStartTime = 0;
+  roundCount = 0;
+  opponentsRolled = false;
+  for (const p of players) {
+    p.points = 0;
+    p.score = 0;
+    p.passed = 0;
+    p.fieldUsed = 0;
+    p.fieldValue = EMPTY;
+    p.cards = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
+    p.cardFiles = ["jpg", "jpg", "jpg", "jpg", "jpg"];
+    p.favorites = Array(10).fill("jpg");
+    p.name = "";
+    p.race = "none";
+  }
+  deck = buildDeck();
+  bomb = 0;
+  interIdx = -1;
+  blankedImgId = "";
+  interSavedFile = "";
+};
+
+// -----------------------------------------------------------------------------
 // Hall of Fame — localStorage persistence
 // -----------------------------------------------------------------------------
 
@@ -1259,13 +1316,6 @@ const recordHallOfFame = (entry) => {
   const data = loadHallOfFame();
   data.push(entry);
   saveHallOfFame(data);
-};
-
-const formatTime = (ms) => {
-  const s = Math.floor(ms / 1000);
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${String(sec).padStart(2, "0")}`;
 };
 
 const renderHallOfFame = () => {
@@ -1401,6 +1451,7 @@ window.showRules = showRules;
 window.setMusic = setMusic;
 window.showCredits = showCredits;
 window.skipIntro = skipIntro;
+window.resetGameState = resetGameState;
 
 } // end of `if (typeof document !== "undefined")` block
 

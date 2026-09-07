@@ -56,6 +56,24 @@
       musicOff: "Off",
       rules: "\uD83D\uDCDC Game Rules",
       rulesTitle: "Rules of Sabacc",
+      mainMenu: "Main Menu",
+      playAgain: "Play Again",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "Victory!",
+      defeat: "Defeat",
+      tie: "Tournament Tie!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "You won the tournament!",
+      youLose: "{name} won the tournament.",
+      tieMessage: "The tournament ended in a tie!",
+      yourScore: "Your score: {score}",
+      rounds: "Rounds played: {rounds}",
+      gameTime: "Game time: {time}",
     },
 
     // ---- Hall of Fame -------------------------------------------------

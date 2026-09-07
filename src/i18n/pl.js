@@ -53,6 +53,24 @@
       musicOff: "Wył.",
       rules: "\uD83D\uDCDC Zasady gry",
       rulesTitle: "Zasady Sabacca",
+      mainMenu: "Menu główne",
+      playAgain: "Zagraj ponownie",
+    },
+
+    // ---- End screen (win / lose / tie) -------------------------------
+    end: {
+      victory: "Zwycięstwo!",
+      defeat: "Porażka",
+      tie: "Remis!",
+      victoryEmoji: "\uD83C\uDFC6",
+      defeatEmoji: "\uD83D\uDD1B",
+      tieEmoji: "\uD83E\uDDF1",
+      youWin: "Wygrałeś turniej!",
+      youLose: "{name} wygrał turniej.",
+      tieMessage: "Turnier zakończył się remisem!",
+      yourScore: "Twój wynik: {score}",
+      rounds: "Rozegrane rundy: {rounds}",
+      gameTime: "Czas gry: {time}",
     },
 
     hof: {
