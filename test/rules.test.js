@@ -1,15 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-// game.js is a plain script that attaches pure functions to window.Sabacc.
-// In Node we shim window, require the i18n loader + English locale, then
-// require game.js, then pull the exports off window.Sabacc.
+// rules.js contains pure game logic exported on window.Sabacc.
+// game.js is the UI layer (skipped in Node).
+// In Node we shim window, require the i18n + rules scripts, then pull exports.
 globalThis.window = globalThis;
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 require("../src/i18n/loader.js");
 require("../src/i18n/en.js");
-require("../src/game.js");
+require("../src/rules.js");
 const {
   buildDeck,
   convert,
@@ -33,6 +33,7 @@ const {
   NUM_CPUS,
   NUM_PLAYERS,
   pickOpponents,
+  pickPersonalities,
   swapCardInLocations,
   randomGeneratorStep,
   generatorSwap,

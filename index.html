@@ -18,6 +18,7 @@
 <script src="src/i18n/zh.js"></script>
 <script src="src/i18n/init.js"></script>
 <!-- Game logic -->
+<script src="src/rules.js"></script>
 <script src="src/game.js"></script>
 </head>
 <body>
@@ -33,6 +34,7 @@
 <!-- ============ Main menu ============ -->
 <div id="startPanel" class="screen menu-screen">
   <div class="menu-buttons">
+    <input type="button" class="menu-btn" id="continueBtn" onClick="continueGame()" value="Continue" data-i18n="ui.continue" style="display:none">
     <input type="button" class="menu-btn" onClick="gamer()" value="Start Game" data-i18n="ui.startGame">
     <input type="button" class="menu-btn" onClick="showScreen('settingsScreen')" value="Settings" data-i18n="ui.settings">
     <input type="button" class="menu-btn" onClick="showRules()" value="Rules" data-i18n="ui.rules">
@@ -59,6 +61,17 @@
         </select>
       </div>
       <div class="form-row">
+        <span class="label" data-i18n="ui.musicVolume">Music volume:</span>
+        <input type="range" id="musicVolume" class="formControl" min="0" max="100" value="50" onChange="setMusicVolume(this.value)">
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.sfxLabel">Sound effects?</span>
+        <select id="sfxToggle" class="formControl" onChange="setSfx(this.value)">
+          <option value="on" data-i18n="ui.sfxOn">On</option>
+          <option value="off" data-i18n="ui.sfxOff">Off</option>
+        </select>
+      </div>
+      <div class="form-row">
         <span class="label" data-i18n="ui.winThreshold">Points to win:</span>
         <select id="winThresholdSelect" class="formControl" onChange="setWinThreshold(this.value)">
           <option value="100">100</option>
@@ -69,11 +82,23 @@
         </select>
       </div>
       <div class="form-row">
+        <span class="label" data-i18n="ui.cpuCount">CPU opponents:</span>
+        <select id="cpuCountSelect" class="formControl" onChange="setCpuCountSetting(this.value)">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div class="form-row">
         <span class="label" data-i18n="ui.language">Language:</span>
         <select id="langSelect" class="formControl"></select>
       </div>
       <div class="form-row">
         <input type="button" class="formControl" onClick="resetHallOfFame()" value="Reset Hall of Fame" data-i18n="ui.resetHoF">
+      </div>
+      <div class="form-row">
+        <input type="button" class="formControl" onClick="clearSave()" value="Clear Save" data-i18n="ui.clearSave">
       </div>
     </div>
     <div class="form-row">
