@@ -1,0 +1,328 @@
+/* =============================================================================
+   Sabacc Tournament — styles
+   =============================================================================
+
+   Layout: a fixed-width (720px) game board centered horizontally and
+   vertically in the browser window. The body background (starfield) is
+   drawn once, centered, and does not repeat or scroll.
+   ========================================================================== */
+
+/* ----- Page body ----- */
+body {
+  margin: 0;
+  padding: 0;
+  background: #000 url(../assets/images/bg.jpg) no-repeat center center fixed;
+  background-size: cover;
+  color: yellow;
+  font-family: Palatino Linotype, serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----- Intro video overlay ----- */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.intro-overlay.hidden {
+  display: none;
+}
+.intro-video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
+/* ----- Hyperlinks ----- */
+a:link, a:active, a:visited {
+  color: yellow;
+  font-family: Palatino Linotype, serif;
+}
+a:hover {
+  color: red;
+  font-family: Palatino Linotype, serif;
+  text-decoration: none;
+}
+
+/* ----- Screens (start panel & game panel) ----- */
+.screen {
+  width: 720px;
+  box-sizing: border-box;
+}
+.game-screen {
+  display: none;
+}
+
+/* ----- Start screen ----- */
+#startPanel .screen-inner {
+  text-align: center;
+}
+.form-row {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.form-row .label {
+  white-space: nowrap;
+}
+
+/* ----- Title text ----- */
+.title {
+  font-size: 18px;
+  color: yellow;
+  font-family: Palatino Linotype, serif;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+/* ----- Form controls ----- */
+.formControl {
+  font-size: 12px;
+  color: yellow;
+  font-family: Palatino Linotype, serif;
+  background-color: #000;
+  border: 1px solid #444;
+  padding: 2px 4px;
+}
+
+/* ----- Labels ----- */
+.label {
+  font-size: 14px;
+  color: yellow;
+  font-family: Palatino Linotype, serif;
+}
+
+/* ----- Top row: generator | interference field | log ----- */
+.game-top {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Generator panel — uses gb.gif as its background (184x126 in original) */
+.generator-panel {
+  width: 184px;
+  flex-shrink: 0;
+  background: url(../assets/ui/gb.gif) no-repeat center center;
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  box-sizing: border-box;
+}
+.generator-panel img {
+  margin: 4px 0;
+}
+/* Generator card display fields — sized via CSS, not HTML attributes */
+.gen-card {
+  width: 165px;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* Interference field panel — uses ib.gif (128x128) */
+.field-panel {
+  width: 250px;
+  flex-shrink: 0;
+  background: url(../assets/ui/ib.gif) no-repeat center center;
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.field-label {
+  font-size: 12px;
+  color: yellow;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.field-slots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.field-slots img {
+  width: 66px;
+  height: 95px;
+}
+.field-hint {
+  font-size: 10px;
+  color: #888;
+  margin: 6px 0 0;
+}
+/* Player's field drop zone — visual feedback when dragging over */
+.field-drop-zone {
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.field-drop-zone.drag-over {
+  border-color: yellow;
+}
+#playerField {
+  cursor: pointer;
+}
+
+/* Event log + buttons */
+.log-panel {
+  flex: 1;
+  min-width: 0;
+  background: url(../assets/ui/back3.gif);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.log-panel textarea {
+  flex: 1;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+/* ----- Event log textarea ----- */
+.eventLogStyle {
+  font-size: 11px;
+  background-color: #000;
+  background-image: url(../assets/images/bith.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  color: #ccc;
+  font-family: "Courier New", monospace;
+  border: 1px solid #444;
+  line-height: 1.4;
+  padding: 4px 6px;
+}
+
+/* ----- Card table — uses table.jpg (717x218) ----- */
+.card-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: url(../assets/images/table.jpg) no-repeat center top;
+  background-size: 100% auto;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  min-height: 218px;
+}
+
+.hand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.hand-drawn, .hand-dealt {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.hand img {
+  width: 66px;
+  height: 95px;
+}
+
+/* Player cards are draggable */
+.player-hand img {
+  cursor: grab;
+  transition: opacity 0.2s;
+}
+.player-hand img:drag {
+  opacity: 0.5;
+}
+.player-hand img.dragging {
+  opacity: 0.4;
+}
+
+/* ----- Avatar row ----- */
+.avatar-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  background: url(../assets/ui/back3.gif);
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+.avatar-row img {
+  width: 65px;
+  height: 65px;
+}
+
+/* ----- Toast notifications ----- */
+#toastContainer {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: Palatino Linotype, serif;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast-info {
+  background: rgba(50, 50, 80, 0.9);
+  border: 1px solid #6666ff;
+}
+.toast-success {
+  background: rgba(20, 80, 20, 0.9);
+  border: 1px solid #44aa44;
+}
+.toast-error {
+  background: rgba(80, 20, 20, 0.9);
+  border: 1px solid #aa4444;
+}
+
+/* ----- Alternate panel style (kept for completeness) ----- */
+.panelCellAlt {
+  font-size: 14px;
+  background-image: url(../assets/ui/ib.gif);
+  color: #000033;
+  font-family: Palatino Linotype, serif;
+}

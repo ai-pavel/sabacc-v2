@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Credits</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: Palatino Linotype, serif;
+    overflow: hidden;
+  }
+  a:link, a:active, a:visited { color: yellow; font-family: Palatino Linotype, serif; }
+  a:hover { color: red; font-family: Palatino Linotype, serif; text-decoration: none; }
+
+  /* Rolling credits container: fixed-height viewport, hidden overflow */
+  .credits-window {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Inner strip that scrolls from bottom to top. Animation duration
+     scales with content length; loop seamlessly by jumping back to 0. */
+  .credits-scroll {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    animation: roll 60s linear infinite;
+  }
+
+  @keyframes roll {
+    0%   { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
+  }
+
+  .credits-scroll .panel {
+    padding: 30px 20px;
+    font-size: 14px;
+    color: #9999ff;
+  }
+  .credits-scroll .panel b {
+    font-size: 18px;
+    color: #ccc;
+  }
+  .credits-scroll .panel .small {
+    font-size: 11px;
+    color: #888;
+  }
+
+  .back-link {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+    background: rgba(0,0,0,0.7);
+    padding: 5px 0;
+  }
+</style>
+</head>
+<body bgcolor="#000000">
+
+<div class="credits-window">
+  <div class="credits-scroll">
+
+    <div class="panel">
+      All rights, design, etc. belong<br>to Lucasfilm, Ltd
+      <br><br>
+      <b>Lucasfilm. Ltd</b>
+      <br><br>
+      <span class="small">All rights reserved</span>
+    </div>
+
+    <div class="panel">
+      Code<br>by
+      <br><br>
+      <b>Revan</b>
+      <br><br>
+      <span class="small">revan1@mail.ru<br>ICQ#: 204-399-592</span>
+    </div>
+
+    <div class="panel">
+      Testing and debugging<br>by
+      <br><br>
+      <b>Revan</b>
+      <br><br>
+      <span class="small">revan1@mail.ru<br>ICQ#: 204-399-592</span>
+    </div>
+
+    <div class="panel">
+      Idea<br>by
+      <br><br>
+      <b>Darth Favourite</b>
+      <br><br>
+      <span class="small">favourite_2003@mail.ru<br>ICQ#: 297-600-992</span>
+    </div>
+
+    <div class="panel">
+      Music<br>by
+      <br><br>
+      <b>John Williams</b>
+      <br><span class="small">(The Sith Lords: Iziz Cantina)</span>
+      <br>&amp;
+      <br>
+      <b>Mark Griskey</b>
+      <br><span class="small">(Star Wars: End Credits)</span>
+    </div>
+
+    <div class="panel">
+      Thanks
+      <br><br>
+      <b>Jim Rayner</b>
+      <br><br>
+      <span class="small">based on "Knights of the Doomed Republic I:<br>War on Coruscant"</span>
+    </div>
+
+    <div class="panel">
+      Special thanks
+      <br><br>
+      <b>Denis Konstantin</b>
+      <br><br>
+      <span class="small">for help with<br>the "Sabacc Tour" table</span>
+    </div>
+
+    <div class="panel">
+      And also <b>Microsoft</b>
+      <br><br>
+      <b>for Notepad</b>
+      <br><br>
+      <span class="small">and for not crashing... =)</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="back-link"><a href="index.html">Back to game</a></div>
+
+<audio loop autoplay id="creditsAudio">
+  <source src="assets/audio/credits.mp3" type="audio/mpeg">
+</audio>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Sabacc of Coruscant</title>
+<link href="src/style.css" rel="stylesheet">
+<script src="src/program.js"></script>
+</head>
+<body>
+
+<!-- ============ Intro video ============ -->
+<div id="introVideo" class="intro-overlay">
+  <video id="introPlayer" class="intro-video" autoplay muted playsinline>
+    <source src="assets/video/background_video.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- ============ Start screen (name entry) ============ -->
+<div id="startPanel" class="screen">
+  <div class="screen-inner">
+    <p class="title">Sabacc of Coruscant &copy; 2005</p>
+    <div class="form-row">
+      <span class="label">Your name:</span>
+      <input type="text" class="formControl" id="nameInput" maxlength="19" placeholder="Player">
+    </div>
+    <div class="form-row">
+      <input name="music" type="checkbox" class="formControl" id="musicToggle" checked>
+      <span class="label">Enable music?</span>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="gamer()" value="Start game">
+      <a href="credits.html">Credits</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Game screen ============ -->
+<div id="game" class="screen game-screen">
+
+  <!-- Top row: generator panel | interference field | event log + buttons -->
+  <div class="game-top">
+
+    <!-- Generator (randomizer pot) display -->
+    <div class="generator-panel">
+      <input type="text" class="formControl gen-card" id="genCard1" readonly>
+      <img src="assets/ui/generator.gif" alt="generator">
+      <input type="text" class="formControl gen-card" id="genCard2" readonly>
+    </div>
+
+    <!-- Interference field: cpu1 | player | cpu2 -->
+    <div class="field-panel">
+      <div class="field-label">Interference field</div>
+      <div class="field-slots">
+        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu1Field">
+        <div id="playerFieldDrop" class="field-drop-zone">
+          <img src="assets/cards/field.gif" alt="Your interference field" id="playerField">
+        </div>
+        <img src="assets/cards/field.gif" alt="Opponent's interference field" id="cpu2Field">
+      </div>
+      <p class="field-hint">Drag a card here to protect it</p>
+    </div>
+
+    <!-- Event log + action buttons -->
+    <div class="log-panel">
+      <textarea readonly wrap="virtual" class="eventLogStyle" id="eventLog"></textarea>
+      <div class="action-buttons">
+        <input type="button" class="formControl" id="turnBtn" onClick="turn()" value="Next turn">
+        <input type="button" class="formControl" id="passBtn" onClick="pass()" value="Pass">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Card table: cpu1 | player | cpu2 -->
+  <div class="card-table">
+
+    <div class="hand cpu1-hand">
+      <div class="hand-drawn">
+        <img src="assets/cards/blank.gif" id="cpu1Card2">
+        <img src="assets/cards/blank.gif" id="cpu1Card3">
+        <img src="assets/cards/blank.gif" id="cpu1Card4">
+      </div>
+      <div class="hand-dealt">
+        <img src="assets/cards/wallp.gif" id="cpu1Card0">
+        <img src="assets/cards/wallp.gif" id="cpu1Card1">
+      </div>
+    </div>
+
+    <div class="hand player-hand">
+      <div class="hand-drawn">
+        <img src="assets/cards/blank.gif" id="playerCard2">
+        <img src="assets/cards/blank.gif" id="playerCard3">
+        <img src="assets/cards/blank.gif" id="playerCard4">
+      </div>
+      <div class="hand-dealt">
+        <img src="assets/cards/blank.gif" id="playerCard0">
+        <img src="assets/cards/blank.gif" id="playerCard1">
+      </div>
+    </div>
+
+    <div class="hand cpu2-hand">
+      <div class="hand-drawn">
+        <img src="assets/cards/blank.gif" id="cpu2Card2">
+        <img src="assets/cards/blank.gif" id="cpu2Card3">
+        <img src="assets/cards/blank.gif" id="cpu2Card4">
+      </div>
+      <div class="hand-dealt">
+        <img src="assets/cards/wallp.gif" id="cpu2Card0">
+        <img src="assets/cards/wallp.gif" id="cpu2Card1">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Avatar row: cpu1 | player | cpu2 -->
+  <div class="avatar-row">
+    <img src="assets/avatars/blank.gif" id="cpu1Avatar" alt="CPU 1">
+    <img src="assets/avatars/default.gif" id="playerAvatar" alt="You">
+    <img src="assets/avatars/blank.gif" id="cpu2Avatar" alt="CPU 2">
+  </div>
+
+</div>
+
+<!-- Toast notification container -->
+<div id="toastContainer"></div>
+
+<audio id="musicPlayer" loop autoplay hidden></audio>
+</body>
+</html>
