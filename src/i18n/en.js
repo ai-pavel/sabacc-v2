@@ -74,6 +74,7 @@
       yourScore: "Your score: {score}",
       rounds: "Rounds played: {rounds}",
       gameTime: "Game time: {time}",
+      pureSabaccs: "Pure Sabaccs: {count}",
     },
 
     // ---- Hall of Fame -------------------------------------------------
@@ -82,6 +83,7 @@
       name: "Player",
       score: "Score",
       rounds: "Rounds",
+      pureSabaccs: "Pure Sabaccs",
       time: "Game Time",
       empty: "No records yet — play a game!",
       resetConfirm: "Are you sure you want to reset the Hall of Fame?",

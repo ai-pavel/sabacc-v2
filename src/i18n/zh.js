@@ -71,6 +71,7 @@
       yourScore: "你的分数: {score}",
       rounds: "已玩回合: {rounds}",
       gameTime: "游戏时长: {time}",
+      pureSabaccs: "纯萨巴克: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "玩家",
       score: "分数",
       rounds: "回合",
+      pureSabaccs: "纯萨巴克",
       time: "游戏时长",
       empty: "暂无记录 — 去玩一局吧!",
       resetConfirm: "确定要清除名人堂吗?",

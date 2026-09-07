@@ -71,6 +71,7 @@
       yourScore: "Dein Punktestand: {score}",
       rounds: "Gespielte Runden: {rounds}",
       gameTime: "Spieldauer: {time}",
+      pureSabaccs: "Reine Sabaccs: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Spieler",
       score: "Punkte",
       rounds: "Runden",
+      pureSabaccs: "Reine Sabaccs",
       time: "Dauer",
       empty: "Noch keine Einträge — spiele eine Partie!",
       resetConfirm: "Ruhmeshalle wirklich zurücksetzen?",

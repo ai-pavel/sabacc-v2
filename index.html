@@ -61,6 +61,7 @@
       <div class="form-row">
         <span class="label" data-i18n="ui.winThreshold">Points to win:</span>
         <select id="winThresholdSelect" class="formControl" onChange="setWinThreshold(this.value)">
+          <option value="100">100</option>
           <option value="500">500</option>
           <option value="1000">1000</option>
           <option value="2500">2500</option>
@@ -113,9 +114,9 @@
     <div class="credits-scroll" id="creditsScroll"></div>
   </div>
   <div class="back-link">
-    <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    <input type="button" class="formControl" onClick="stopCreditsMusic(); showScreen('startPanel')" value="Back" data-i18n="ui.back">
   </div>
-  <audio loop autoplay id="creditsAudio">
+  <audio loop id="creditsAudio">
     <source src="assets/audio/credits.mp3" type="audio/mpeg">
   </audio>
 </div>
@@ -131,7 +132,7 @@
     </div>
     <div class="form-row">
       <input type="button" class="formControl" onClick="showScreen('startPanel'); resetGameState()" value="Main Menu" data-i18n="ui.mainMenu">
-      <input type="button" class="formControl" onClick="location.reload()" value="Play Again" data-i18n="ui.playAgain">
+      <input type="button" class="formControl" onClick="playAgain()" value="Play Again" data-i18n="ui.playAgain">
     </div>
   </div>
 </div>

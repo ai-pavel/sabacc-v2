@@ -71,6 +71,7 @@
       yourScore: "Il tuo punteggio: {score}",
       rounds: "Turni giocati: {rounds}",
       gameTime: "Durata: {time}",
+      pureSabaccs: "Sabacc puri: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Giocatore",
       score: "Punti",
       rounds: "Turni",
+      pureSabaccs: "Sabacc puri",
       time: "Durata",
       empty: "Nessun record — gioca una partita!",
       resetConfirm: "Azzerare la Hall of Fame?",

@@ -71,6 +71,7 @@
       yourScore: "あなたのスコア: {score}",
       rounds: "プレイしたラウンド: {rounds}",
       gameTime: "プレイ時間: {time}",
+      pureSabaccs: "純サバック: {count}回",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "プレイヤー",
       score: "スコア",
       rounds: "ラウンド",
+      pureSabaccs: "純サバック",
       time: "プレイ時間",
       empty: "記録なし — プレイしましょう!",
       resetConfirm: "殿堂をリセットしますか?",

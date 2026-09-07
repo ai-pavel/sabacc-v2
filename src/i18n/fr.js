@@ -71,6 +71,7 @@
       yourScore: "Votre score : {score}",
       rounds: "Manches jouées : {rounds}",
       gameTime: "Durée : {time}",
+      pureSabaccs: "Sabaccs purs : {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Joueur",
       score: "Points",
       rounds: "Manches",
+      pureSabaccs: "Sabaccs purs",
       time: "Durée",
       empty: "Aucun record — jouez une partie !",
       resetConfirm: "Effacer le Temple de la renommée ?",

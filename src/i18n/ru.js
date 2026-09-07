@@ -71,6 +71,7 @@
       yourScore: "Ваш счёт: {score}",
       rounds: "Сыграно раундов: {rounds}",
       gameTime: "Время игры: {time}",
+      pureSabaccs: "Чистых сабакков: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Игрок",
       score: "Очки",
       rounds: "Раунды",
+      pureSabaccs: "Чистых сабакков",
       time: "Время",
       empty: "Пока нет записей — сыграйте!",
       resetConfirm: "Вы уверены, что хотите очистить зал славы?",

@@ -71,6 +71,7 @@
       yourScore: "Sua pontuação: {score}",
       rounds: "Rodadas jogadas: {rounds}",
       gameTime: "Tempo de jogo: {time}",
+      pureSabaccs: "Sabacc puros: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Jogador",
       score: "Pontos",
       rounds: "Rodadas",
+      pureSabaccs: "Sabacc puros",
       time: "Duração",
       empty: "Sem registros — jogue uma partida!",
       resetConfirm: "Limpar o Hall da Fama?",

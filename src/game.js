@@ -414,6 +414,7 @@ let opponentsRolled = false;
 let deck = buildDeck();
 let gameStartTime = 0;
 let roundCount = 0;
+let pureSabaccCount = 0;
 
 // Per-player state. players[0] = human, players[1..NUM_CPUS] = CPUs.
 const players = Array.from({ length: NUM_PLAYERS }, () => ({
@@ -647,6 +648,9 @@ const scoreRound = () => {
   const results = players.map((p, i) =>
     evaluateRound(p.score, { idiotsArray: idiots[i] }));
 
+  // Count human player's pure sabaccs
+  if (results[0].roundPoints === 24) pureSabaccCount++;
+
   for (let i = 0; i < NUM_PLAYERS; i++) {
     players[i].points += results[i].tournamentDelta;
   }
@@ -783,13 +787,16 @@ const pass = () => {
   if (winner.index < 0) {
     gamer();
   } else {
-    // Record human player's result to Hall of Fame
-    recordHallOfFame({
-      name: players[0].name,
-      score: players[0].points,
-      rounds: roundCount,
-      time: Date.now() - gameStartTime,
-    });
+    // Record human player's result to Hall of Fame (only on victory)
+    if (!winner.tie && winner.index === 0) {
+      recordHallOfFame({
+        name: players[0].name,
+        score: players[0].points,
+        rounds: roundCount,
+        pureSabaccs: pureSabaccCount,
+        time: Date.now() - gameStartTime,
+      });
+    }
     showEndScreen(winner);
   }
 };
@@ -845,6 +852,7 @@ const gamer = () => {
   if (gameStartTime === 0) {
     gameStartTime = Date.now();
     roundCount = 1;
+    pureSabaccCount = 0;
   }
 
   players[0].name = $("nameInput").value || STR.defaultPlayerName;
@@ -1166,7 +1174,7 @@ const setupKeyboard = () => {
 // -----------------------------------------------------------------------------
 
 const WIN_THRESHOLD_KEY = "sabacc-win-threshold";
-const VALID_THRESHOLDS = [500, 1000, 2500, 5000];
+const VALID_THRESHOLDS = [100, 500, 1000, 2500, 5000];
 
 const loadWinThreshold = () => {
   try {
@@ -1257,6 +1265,7 @@ const showEndScreen = (winner) => {
   $("endStats").innerHTML =
     STR.end.yourScore.replace("{score}", players[0].points) + "<br>" +
     STR.end.rounds.replace("{rounds}", roundCount) + "<br>" +
+    STR.end.pureSabaccs.replace("{count}", pureSabaccCount) + "<br>" +
     STR.end.gameTime.replace("{time}", formatTime(time));
 
   showScreen("endScreen");
@@ -1267,6 +1276,7 @@ const resetGameState = () => {
   game = 0;
   gameStartTime = 0;
   roundCount = 0;
+  pureSabaccCount = 0;
   opponentsRolled = false;
   for (const p of players) {
     p.points = 0;
@@ -1285,6 +1295,19 @@ const resetGameState = () => {
   interIdx = -1;
   blankedImgId = "";
   interSavedFile = "";
+};
+
+const playAgain = () => {
+  resetGameState();
+  // Restore player name from Settings input
+  const nameInput = $("nameInput");
+  if (nameInput && nameInput.value) {
+    players[0].name = nameInput.value;
+  } else {
+    players[0].name = loadPlayerName() || STR.defaultPlayerName;
+  }
+  skipIntro();
+  gamer();
 };
 
 // -----------------------------------------------------------------------------
@@ -1329,12 +1352,13 @@ const renderHallOfFame = () => {
   const sorted = [...data].sort((a, b) => {
     if (hofSortKey === "score") return b.score - a.score;
     if (hofSortKey === "rounds") return b.rounds - a.rounds;
+    if (hofSortKey === "pureSabaccs") return (b.pureSabaccs || 0) - (a.pureSabaccs || 0);
     if (hofSortKey === "time") return a.time - b.time;
     return 0;
   }).slice(0, HOF_MAX);
 
   const rows = sorted.map((e, i) =>
-    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${formatTime(e.time)}</td></tr>`
+    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${e.pureSabaccs || 0}</td><td>${formatTime(e.time)}</td></tr>`
   ).join("");
 
   const sortAttr = (key) =>
@@ -1343,10 +1367,11 @@ const renderHallOfFame = () => {
   container.innerHTML =
     `<table class="hof-table">` +
     `<tr>` +
-      `<th${sortAttr("rank")} onclick="hofSort('rank')">${STR.hof.rank}</th>` +
+      `<th>${STR.hof.rank}</th>` +
       `<th>${STR.hof.name}</th>` +
       `<th${sortAttr("score")} onclick="hofSort('score')">${STR.hof.score}</th>` +
       `<th${sortAttr("rounds")} onclick="hofSort('rounds')">${STR.hof.rounds}</th>` +
+      `<th${sortAttr("pureSabaccs")} onclick="hofSort('pureSabaccs')">${STR.hof.pureSabaccs}</th>` +
       `<th${sortAttr("time")} onclick="hofSort('time')">${STR.hof.time}</th>` +
     `</tr>` +
     rows +
@@ -1377,7 +1402,15 @@ const showCredits = () => {
   if (scroll) scroll.innerHTML = STR.credits.html;
   showScreen("creditsScreen");
   const audio = $("creditsAudio");
-  if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+  if (audio) {
+    audio.currentTime = 0;
+    if (loadMusicPref() === "on") audio.play().catch(() => {});
+  }
+};
+
+const stopCreditsMusic = () => {
+  const audio = $("creditsAudio");
+  if (audio) { audio.pause(); audio.currentTime = 0; }
 };
 
 const hofSort = (key) => {
@@ -1450,8 +1483,10 @@ window.setWinThreshold = setWinThreshold;
 window.showRules = showRules;
 window.setMusic = setMusic;
 window.showCredits = showCredits;
+window.stopCreditsMusic = stopCreditsMusic;
 window.skipIntro = skipIntro;
 window.resetGameState = resetGameState;
+window.playAgain = playAgain;
 
 } // end of `if (typeof document !== "undefined")` block
 

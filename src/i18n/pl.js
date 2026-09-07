@@ -71,6 +71,7 @@
       yourScore: "Twój wynik: {score}",
       rounds: "Rozegrane rundy: {rounds}",
       gameTime: "Czas gry: {time}",
+      pureSabaccs: "Czyste Sabacc: {count}",
     },
 
     hof: {
@@ -78,6 +79,7 @@
       name: "Gracz",
       score: "Punkty",
       rounds: "Rundy",
+      pureSabaccs: "Czyste Sabacc",
       time: "Czas",
       empty: "Brak wyników — zagraj!",
       resetConfirm: "Wyczyścić galerię sław?",
