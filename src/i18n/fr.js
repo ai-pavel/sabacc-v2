@@ -51,17 +51,13 @@
       cpu1Alt: "IA 1",
       cpu2Alt: "IA 2",
       generatorAlt: "générateur",
+      tournamentTitle: "Tournoi",
+      tournamentPoints: "pts",
     },
 
     log: {
       welcome: "{name}, bonne chance et restez humble !",
       roundHeader: "Manche {n}",
-      tournamentTable:
-        "***** Tableau du tournoi *****\n" +
-        "{race1} - {points1}\n" +
-        "{player} - {points3}\n" +
-        "{race2} - {points2}\n" +
-        "************************************************************",
       yourScore: "- Votre score actuel : {score}",
       opponents: "- Vos adversaires sont {cpu1} et {cpu2}",
       firstPair: "- Votre première paire a été distribuée",

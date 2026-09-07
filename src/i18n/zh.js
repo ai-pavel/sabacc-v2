@@ -51,17 +51,13 @@
       cpu1Alt: "AI 1",
       cpu2Alt: "AI 2",
       generatorAlt: "生成器",
+      tournamentTitle: "锦标赛",
+      tournamentPoints: "分",
     },
 
     log: {
       welcome: "{name}, 祝你好运, 别得意忘形!",
       roundHeader: "第 {n} 回合",
-      tournamentTable:
-        "***** 锦标赛排行榜 *****\n" +
-        "{race1} - {points1}\n" +
-        "{player} - {points3}\n" +
-        "{race2} - {points2}\n" +
-        "************************************************************",
       yourScore: "- 当前分数: {score}",
       opponents: "- 你的对手是 {cpu1} 和 {cpu2}",
       firstPair: "- 你的首对牌已发出",

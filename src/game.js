@@ -474,17 +474,9 @@ const clearLog = () => {
   } else {
     $("eventLog").value = STR.log.roundHeader.replace("{n}", game);
     game += 1;
-    logMessage(
-      STR.log.tournamentTable
-        .replace("{race1}", race1)
-        .replace("{points1}", points1)
-        .replace("{player}", playerName)
-        .replace("{points3}", points3)
-        .replace("{race2}", race2)
-        .replace("{points2}", points2),
-    );
   }
   updateScore();
+  updateTournamentPanel();
   $("genCard1").value = "";
   $("genCard2").value = "";
 };
@@ -496,6 +488,24 @@ const clearLog = () => {
 const updateScore = () => {
   score = scoreHand(cards, playerFieldValue);
   logMessage(STR.log.yourScore.replace("{score}", score));
+};
+
+// -----------------------------------------------------------------------------
+// Tournament standings panel
+// -----------------------------------------------------------------------------
+
+const updateTournamentPanel = () => {
+  const cells = [
+    { nameId: "scoreNameCpu1",   valueId: "scoreValueCpu1",   name: cpu1Name,    points: points1 },
+    { nameId: "scoreNamePlayer", valueId: "scoreValuePlayer", name: playerName,  points: points3 },
+    { nameId: "scoreNameCpu2",   valueId: "scoreValueCpu2",   name: cpu2Name,    points: points2 },
+  ];
+  for (const c of cells) {
+    const nameEl = $(c.nameId);
+    const valEl = $(c.valueId);
+    if (nameEl) nameEl.textContent = c.name || "";
+    if (valEl) valEl.textContent = c.points;
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -550,6 +560,7 @@ const scoreRound = () => {
   points1 = p1;
   points2 = p2;
   points3 = p3;
+  updateTournamentPanel();
 };
 
 // -----------------------------------------------------------------------------

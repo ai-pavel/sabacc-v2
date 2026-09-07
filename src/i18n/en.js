@@ -55,18 +55,14 @@
       cpu1Alt: "CPU 1",
       cpu2Alt: "CPU 2",
       generatorAlt: "generator",
+      tournamentTitle: "Tournament",
+      tournamentPoints: "pts",
     },
 
     // ---- Event log ----------------------------------------------------
     log: {
       welcome: "{name}, good luck and don't get cocky!",
       roundHeader: "Round {n}",
-      tournamentTable:
-        "***** Tournament table *****\n" +
-        "{race1} - {points1}\n" +
-        "{player} - {points3}\n" +
-        "{race2} - {points2}\n" +
-        "************************************************************",
       yourScore: "- Your current score: {score}",
       opponents: "- Your opponents are {cpu1} and {cpu2}",
       firstPair: "- Your first pair has been dealt",

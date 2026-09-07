@@ -45,23 +45,19 @@
     uiGame: {
       interferenceField: "Интерферирующее поле",
       fieldHint: "Перетащите карту сюда, чтобы защитить её",
-      nextTurn: "Следующий ход",
+      nextTurn: "Следующий хід",
       pass: "Пас",
       youAlt: "Вы",
       cpu1Alt: "ИИ 1",
       cpu2Alt: "ИИ 2",
       generatorAlt: "генератор",
+      tournamentTitle: "Турнир",
+      tournamentPoints: "очк",
     },
 
     log: {
       welcome: "{name}, удачи и не зазнавайся!",
       roundHeader: "Раунд {n}",
-      tournamentTable:
-        "***** Турнирная таблица *****\n" +
-        "{race1} - {points1}\n" +
-        "{player} - {points3}\n" +
-        "{race2} - {points2}\n" +
-        "************************************************************",
       yourScore: "- Ваш текущий счёт: {score}",
       opponents: "- Ваши соперники: {cpu1} и {cpu2}",
       firstPair: "- Вам роздана первая пара карт",

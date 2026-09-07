@@ -51,17 +51,13 @@
       cpu1Alt: "AI 1",
       cpu2Alt: "AI 2",
       generatorAlt: "ジェネレータ",
+      tournamentTitle: "トーナメント",
+      tournamentPoints: "点",
     },
 
     log: {
       welcome: "{name}、幸運を。うぬぼれないように!",
       roundHeader: "ラウンド {n}",
-      tournamentTable:
-        "***** トーナメント表 *****\n" +
-        "{race1} - {points1}\n" +
-        "{player} - {points3}\n" +
-        "{race2} - {points2}\n" +
-        "************************************************************",
       yourScore: "- 現在のスコア: {score}",
       opponents: "- 対戦相手は {cpu1} と {cpu2}",
       firstPair: "- 最初のペアが配られました",
