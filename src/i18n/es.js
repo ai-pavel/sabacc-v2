@@ -59,7 +59,7 @@
       welcome: "¡{name}, buena suerte y no te confíes!",
       roundHeader: "Ronda {n}",
       yourScore: "- Tu puntaje actual: {score}",
-      opponents: "- Tus oponentes son {cpu1} y {cpu2}",
+      opponents: "- Tus oponentes son {names}",
       firstPair: "- Te repartieron tu primera pareja",
       youDrew: '- Robaste la carta "{card}"',
       cpuDrew: '- {race} robó la carta "{card}"',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- Mazo agotado \u2014 no más robos",
       generatorReplaced: '- El generador reemplazó la carta "{g1}" por "{g2}"',
       generatorDeckDepleted: "- Generador: mazo agotado",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "¡Sabacc puro!",
       fieldOccupied: "¡Campo de interferencia ocupado!",
       nothingToRetrieve: "Nada que devolver \u2014 primero mueve una carta al campo",
-      roundOver:
-        "¡Ronda terminada! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "¡Ronda terminada! {list}",
       tie: "¡El torneo termina en empate!",
       winner: "¡{name} gana el torneo!",
     },

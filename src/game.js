@@ -26,6 +26,24 @@ const BOMB_POINTS = -24;
 const WIN_THRESHOLD = 500;
 /** Sentinel for an empty card slot */
 const EMPTY = 20;
+/** Number of CPU opponents (the human is in addition to these). */
+const NUM_CPUS = 4;
+/** Total seats at the table (1 human + NUM_CPUS CPUs). */
+const NUM_PLAYERS = NUM_CPUS + 1;
+/**
+ * Seat order around the table, left to right. The human sits in the middle.
+ * With 4 CPUs the order is: cpu1, cpu2, human, cpu3, cpu4.
+ * `players[]` is indexed 0..NUM_PLAYERS-1 (0 = human, 1..NUM_CPUS = CPUs);
+ * `SEAT_ORDER` maps each visible position to a players[] index.
+ */
+const SEAT_ORDER = (() => {
+  const half = Math.floor(NUM_CPUS / 2);
+  const order = [];
+  for (let i = 0; i < half; i++) order.push(i + 1);      // cpus left of human
+  order.push(0);                                          // human in the middle
+  for (let i = half; i < NUM_CPUS; i++) order.push(i + 1); // cpus right of human
+  return order;
+})();
 
 const SUITS = STR.suits;
 
@@ -206,7 +224,7 @@ const applyLeaderBonus = (tournamentPoints, roundPoints) => {
 
 /**
  * Decide the tournament winner given tournament point totals.
- * @param {number[]} points - Tournament totals [cpu1, cpu2, human].
+ * @param {number[]} points - Tournament totals, one entry per player.
  * @returns {{ index: number, tie: boolean, points: number }}
  *   index is -1 if no one has crossed WIN_THRESHOLD yet.
  */
@@ -241,17 +259,17 @@ const cpuPassThreshold = (raceName) =>
   CPU_RACES.find((r) => r.name === raceName)?.threshold ?? 15;
 
 /**
- * Pick two distinct race names for the two CPU opponents.
- * @returns {[string, string]}
+ * Pick NUM_CPUS distinct race names for the CPU opponents.
+ * @returns {string[]} Array of NUM_CPUS distinct race names.
  */
 const pickOpponents = () => {
-  let j;
-  let k;
-  do {
-    j = Math.floor(Math.random() * CPU_RACES.length);
-    k = Math.floor(Math.random() * CPU_RACES.length);
-  } while (j === k);
-  return [CPU_RACES[j].name, CPU_RACES[k].name];
+  const pool = [...Array(CPU_RACES.length).keys()];
+  // Fisher–Yates shuffle the first NUM_CPUS slots.
+  for (let i = 0; i < NUM_CPUS; i++) {
+    const j = i + Math.floor(Math.random() * (pool.length - i));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, NUM_CPUS).map((i) => CPU_RACES[i].name);
 };
 
 /**
@@ -306,29 +324,28 @@ const randomGeneratorStep = (deck, g1, g2) => {
 };
 
 /**
- * Apply the generator swap to all three players' hands at once (pure logic).
- * @param {Object} hands - { locs, cards } arrays for player, cpu1, cpu2.
+ * Apply the generator swap to every player's hand at once (pure logic).
+ * @param {Object} hands - Map of { locs, cards } keyed by any identifier
+ *   (e.g. { player: ..., cpu1: ..., cpu2: ... }). All values are processed.
  * @param {string} g1 - Card to replace.
  * @param {string} g2 - Replacement card.
- * @returns {{ player, cpu1, cpu2, swapped: boolean }}
- *   Each property is { locs, cards, changed }. swapped is false if g1==g2.
+ * @returns {{ swapped: boolean, [key]: { locs, cards, changed } }}
+ *   Mirrors the input keys; each value is { locs, cards, changed }.
+ *   swapped is false if g1==g2.
  */
 const generatorSwap = (hands, g1, g2) => {
+  const result = { swapped: g1 !== g2 };
   if (g1 === g2) {
-    return {
-      player: { locs: hands.player.locs, cards: hands.player.cards, changed: false },
-      cpu1:   { locs: hands.cpu1.locs,   cards: hands.cpu1.cards,   changed: false },
-      cpu2:   { locs: hands.cpu2.locs,   cards: hands.cpu2.cards,   changed: false },
-      swapped: false,
-    };
+    for (const [key, h] of Object.entries(hands)) {
+      result[key] = { locs: h.locs, cards: h.cards, changed: false };
+    }
+    return result;
   }
   const newValue = convert(g2);
-  return {
-    player: swapCardInLocations(hands.player.locs, hands.player.cards, g1, g2, newValue),
-    cpu1:   swapCardInLocations(hands.cpu1.locs,   hands.cpu1.cards,   g1, g2, newValue),
-    cpu2:   swapCardInLocations(hands.cpu2.locs,   hands.cpu2.cards,   g1, g2, newValue),
-    swapped: true,
-  };
+  for (const [key, h] of Object.entries(hands)) {
+    result[key] = swapCardInLocations(h.locs, h.cards, g1, g2, newValue);
+  }
+  return result;
 };
 
 /**
@@ -372,8 +389,8 @@ const rollFavorites = () => {
 if (typeof document !== "undefined") {
 
 const $ = (id) => document.getElementById(id);
-const setImg = (id, src) => { $(id).src = src; };
-const setAlt = (id, alt) => { $(id).alt = alt; };
+const setImg = (id, src) => { const el = $(id); if (el) el.src = src; };
+const setAlt = (id, alt) => { const el = $(id); if (el) el.alt = alt; };
 
 const ASSET = {
   cardDir: "assets/cards/",
@@ -385,55 +402,137 @@ const ASSET = {
 };
 
 // -----------------------------------------------------------------------------
-// Game state (module-scoped, reset by resetRound())
+// Game state — per-player array, indexed 0 (human) .. NUM_CPUS
 // -----------------------------------------------------------------------------
 
 let game = 0;
 let musicStarted = 0;
 let bomb = 0;
-
-let playerName = "";
-let cpu1Name = "";
-let cpu2Name = "";
-let race1 = "none";
-let race2 = "none";
-let opponentsRolled = false; // keep same opponents through the tournament
-
-let passed = 0;
-let cpu1Passed = 0;
-let cpu2Passed = 0;
-let cpu1FieldUsed = 0;
-let cpu2FieldUsed = 0;
-
-let score = 0;
-let score1 = 0;
-let score2 = 0;
-
-let playerFieldValue = EMPTY;
-let cpu1FieldValue = EMPTY;
-let cpu2FieldValue = EMPTY;
-
-let points1 = 0;
-let points2 = 0;
-let points3 = 0;
-
-let cards = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-let cards1 = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-let cards2 = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-
-let cardFiles = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-let cardFiles1 = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-let cardFiles2 = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-
-let favorites1 = Array(10).fill("jpg");
-let favorites2 = Array(10).fill("jpg");
-
+let opponentsRolled = false;
 let deck = buildDeck();
 
-// interference-field bookkeeping for human
+// Per-player state. players[0] = human, players[1..NUM_CPUS] = CPUs.
+const players = Array.from({ length: NUM_PLAYERS }, () => ({
+  name: "",
+  race: "none",
+  cards: [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+  cardFiles: ["jpg", "jpg", "jpg", "jpg", "jpg"],
+  score: 0,
+  points: 0,
+  passed: 0,
+  fieldUsed: 0,
+  fieldValue: EMPTY,
+  favorites: Array(10).fill("jpg"),
+}));
+players[0].isHuman = true;
+
+// Human interference-field bookkeeping (only player 0 has drag/drop)
 let interIdx = -1;
 let blankedImgId = "";
 let interSavedFile = "";
+
+// -----------------------------------------------------------------------------
+// ID helpers — generate the DOM IDs for any seat/card slot
+// -----------------------------------------------------------------------------
+
+// Seat label: "cpu1", "player", "cpu2", "cpu3", "cpu4" in table order.
+const seatPrefix = (seatIdx) => {
+  const pIdx = SEAT_ORDER[seatIdx];
+  return pIdx === 0 ? "player" : `cpu${pIdx}`;
+};
+
+const cardId = (seatIdx, slot) => `${seatPrefix(seatIdx)}Card${slot}`;
+const fieldId = (seatIdx) => `${seatPrefix(seatIdx)}Field`;
+const avatarId = (seatIdx) => `${seatPrefix(seatIdx)}Avatar`;
+const scoreNameId = (seatIdx) => `scoreName${cap(seatPrefix(seatIdx))}`;
+const scoreValueId = (seatIdx) => `scoreValue${cap(seatPrefix(seatIdx))}`;
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// players[] index from seat index
+const playerAt = (seatIdx) => players[SEAT_ORDER[seatIdx]];
+
+// -----------------------------------------------------------------------------
+// Board builder — generates all hand/field/avatar/score DOM from templates.
+// Called once at gamer() time.
+// -----------------------------------------------------------------------------
+
+const buildGameBoard = () => {
+  // Card table: one .hand per seat, in SEAT_ORDER
+  const table = $("cardTable");
+  if (table) {
+    table.innerHTML = "";
+    for (let s = 0; s < NUM_PLAYERS; s++) {
+      const pref = seatPrefix(s);
+      const hand = document.createElement("div");
+      hand.className = `hand ${pref}-hand`;
+      hand.innerHTML =
+        `<div class="hand-drawn">` +
+          `<img src="${ASSET.blank}" id="${pref}Card2">` +
+          `<img src="${ASSET.blank}" id="${pref}Card3">` +
+          `<img src="${ASSET.blank}" id="${pref}Card4">` +
+        `</div>` +
+        `<div class="hand-dealt">` +
+          `<img src="${ASSET.wallp}" id="${pref}Card0">` +
+          `<img src="${ASSET.wallp}" id="${pref}Card1">` +
+        `</div>`;
+      table.appendChild(hand);
+    }
+  }
+
+  // Interference field slots: one per seat
+  const fieldSlots = $("fieldSlots");
+  if (fieldSlots) {
+    fieldSlots.innerHTML = "";
+    for (let s = 0; s < NUM_PLAYERS; s++) {
+      const pref = seatPrefix(s);
+      const img = document.createElement("img");
+      img.src = ASSET.field;
+      img.id = fieldId(s);
+      img.alt = SEAT_ORDER[s] === 0 ? STR.alt.yourField : STR.alt.opponentField;
+      if (SEAT_ORDER[s] === 0) {
+        // Wrap the player's field in a drop zone
+        const zone = document.createElement("div");
+        zone.id = "playerFieldDrop";
+        zone.className = "field-drop-zone";
+        zone.appendChild(img);
+        fieldSlots.appendChild(zone);
+      } else {
+        fieldSlots.appendChild(img);
+      }
+    }
+  }
+
+  // Avatar row
+  const avatarRow = $("avatarRow");
+  if (avatarRow) {
+    avatarRow.innerHTML = "";
+    for (let s = 0; s < NUM_PLAYERS; s++) {
+      const pref = seatPrefix(s);
+      const img = document.createElement("img");
+      img.src = SEAT_ORDER[s] === 0 ? "assets/avatars/default.gif" : "assets/avatars/blank.gif";
+      img.id = avatarId(s);
+      img.alt = pref === "player" ? STR.uiGame.youAlt : `${STR.uiGame.cpuAltN ? STR.uiGame.cpuAltN.replace("{n}", SEAT_ORDER[s]) : "CPU " + SEAT_ORDER[s]}`;
+      avatarRow.appendChild(img);
+    }
+  }
+
+  // Tournament score cells
+  const scoresDiv = $("tournamentScores");
+  if (scoresDiv) {
+    scoresDiv.innerHTML = "";
+    for (let s = 0; s < NUM_PLAYERS; s++) {
+      const pref = seatPrefix(s);
+      const cell = document.createElement("div");
+      cell.className = "score-cell";
+      cell.id = `scoreCell${cap(pref)}`;
+      cell.innerHTML =
+        `<span class="score-name" id="scoreName${cap(pref)}">&nbsp;</span>` +
+        `<span class="score-value" id="scoreValue${cap(pref)}">0</span>` +
+        `<span class="score-unit" data-i18n="uiGame.tournamentPoints">${STR.uiGame.tournamentPoints}</span>`;
+      scoresDiv.appendChild(cell);
+    }
+  }
+};
 
 // -----------------------------------------------------------------------------
 // Toast notifications
@@ -446,7 +545,6 @@ const showToast = (message, type = "info") => {
   toast.className = `toast toast-${type}`;
   toast.textContent = message;
   container.appendChild(toast);
-  // Force reflow so the transition plays
   void toast.offsetWidth;
   toast.classList.add("toast-show");
   setTimeout(() => {
@@ -464,12 +562,12 @@ const logMessage = (text) => {
   el.value = `${el.value}\n${text}`;
 };
 
-const scrollLog = () => { $("eventLog").scrollTop = $("eventLog").scrollHeight; };
+const scrollLog = () => { const el = $("eventLog"); if (el) el.scrollTop = el.scrollHeight; };
 
 const clearLog = () => {
   opps();
   if (game === 0) {
-    $("eventLog").value = STR.log.welcome.replace("{name}", playerName);
+    $("eventLog").value = STR.log.welcome.replace("{name}", players[0].name);
     game = 2;
   } else {
     $("eventLog").value = STR.log.roundHeader.replace("{n}", game);
@@ -486,8 +584,8 @@ const clearLog = () => {
 // -----------------------------------------------------------------------------
 
 const updateScore = () => {
-  score = scoreHand(cards, playerFieldValue);
-  logMessage(STR.log.yourScore.replace("{score}", score));
+  players[0].score = scoreHand(players[0].cards, players[0].fieldValue);
+  logMessage(STR.log.yourScore.replace("{score}", players[0].score));
 };
 
 // -----------------------------------------------------------------------------
@@ -495,34 +593,31 @@ const updateScore = () => {
 // -----------------------------------------------------------------------------
 
 const updateTournamentPanel = () => {
-  const cells = [
-    { nameId: "scoreNameCpu1",   valueId: "scoreValueCpu1",   name: cpu1Name,    points: points1 },
-    { nameId: "scoreNamePlayer", valueId: "scoreValuePlayer", name: playerName,  points: points3 },
-    { nameId: "scoreNameCpu2",   valueId: "scoreValueCpu2",   name: cpu2Name,    points: points2 },
-  ];
-  for (const c of cells) {
-    const nameEl = $(c.nameId);
-    const valEl = $(c.valueId);
-    if (nameEl) nameEl.textContent = c.name || "";
-    if (valEl) valEl.textContent = c.points;
+  for (let s = 0; s < NUM_PLAYERS; s++) {
+    const p = playerAt(s);
+    const nameEl = $(scoreNameId(s));
+    const valEl = $(scoreValueId(s));
+    if (nameEl) nameEl.textContent = p.name || "";
+    if (valEl) valEl.textContent = p.points;
   }
 };
 
 // -----------------------------------------------------------------------------
-// Hand evaluation / bomb detection
+// Hand evaluation / bomb detection (human only)
 // -----------------------------------------------------------------------------
 
 const checkBomb = () => {
   if (bomb === 1) return;
-  if (score === 0 || score > PURE_SABACC || score < -PURE_SABACC) {
+  const sc = players[0].score;
+  if (sc === 0 || sc > PURE_SABACC || sc < -PURE_SABACC) {
     showToast(STR.toast.bomb, "error");
     $("turnBtn").disabled = true;
-    passed = 1;
+    players[0].passed = 1;
     bomb = 1;
-  } else if (score === PURE_SABACC || score === -PURE_SABACC) {
+  } else if (sc === PURE_SABACC || sc === -PURE_SABACC) {
     showToast(STR.toast.pureSabacc, "success");
     $("turnBtn").disabled = true;
-    passed = 1;
+    players[0].passed = 1;
     bomb = 1;
   }
 };
@@ -542,24 +637,20 @@ const msg = (inputScore) => {
 };
 
 const scoreRound = () => {
-  const humanIdiot = isIdiotsArray(cards, playerFieldValue);
-  const cpu1Idiot = isIdiotsArray(cards1, cpu1FieldValue);
-  const cpu2Idiot = isIdiotsArray(cards2, cpu2FieldValue);
+  const idiots = players.map((p) =>
+    isIdiotsArray(p.cards, p.fieldValue));
+  const results = players.map((p, i) =>
+    evaluateRound(p.score, { idiotsArray: idiots[i] }));
 
-  const r1 = evaluateRound(score1, { idiotsArray: cpu1Idiot });
-  const r2 = evaluateRound(score2, { idiotsArray: cpu2Idiot });
-  const r3 = evaluateRound(score,  { idiotsArray: humanIdiot  });
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    players[i].points += results[i].tournamentDelta;
+  }
 
-  points1 += r1.tournamentDelta;
-  points2 += r2.tournamentDelta;
-  points3 += r3.tournamentDelta;
+  const roundPoints = results.map((r) => r.roundPoints);
+  const tournamentPoints = players.map((p) => p.points);
+  const adjusted = applyLeaderBonus(tournamentPoints, roundPoints);
+  for (let i = 0; i < NUM_PLAYERS; i++) players[i].points = adjusted[i];
 
-  const roundPoints = [r1.roundPoints, r2.roundPoints, r3.roundPoints];
-  const tournamentPoints = [points1, points2, points3];
-  const [p1, p2, p3] = applyLeaderBonus(tournamentPoints, roundPoints);
-  points1 = p1;
-  points2 = p2;
-  points3 = p3;
   updateTournamentPanel();
 };
 
@@ -567,118 +658,130 @@ const scoreRound = () => {
 // Turn processing
 // -----------------------------------------------------------------------------
 
-const placeCard = (handCards, handLocs, slotIds, value, cardFile, cardName) => {
+const placeCard = (p, seatIdx, value, cardFile, cardName) => {
   for (let s = 2; s <= 4; s++) {
-    if (handCards[s] === EMPTY) {
-      handCards[s] = value;
-      handLocs[s] = cardFile;
-      setImg(slotIds[s - 2], `assets/cards/${cardFile}`);
-      setAlt(slotIds[s - 2], cardName);
+    if (p.cards[s] === EMPTY) {
+      p.cards[s] = value;
+      p.cardFiles[s] = cardFile;
+      setImg(cardId(seatIdx, s), `assets/cards/${cardFile}`);
+      setAlt(cardId(seatIdx, s), cardName);
       return s;
     }
   }
   return -1;
 };
 
-const cpuTurn = (raceName, cpuScore, handCards, handLocs, slotIds, passFlag) => {
-  if (passFlag === 1) return { passed: true, score: cpuScore };
-  const threshold = cpuPassThreshold(raceName);
-  if (cpuWantsToDraw(cpuScore, threshold)) {
-    if (deckRemaining(deck) === 0) {
-      logMessage(STR.log.cpuPassesDeckDepleted.replace("{race}", raceName));
-      return { passed: true, score: cpuScore };
-    }
-    const card = drawFromDeck(deck);
-    const value = convert(card);
-    const cardName = compile(card);
-    logMessage(STR.log.cpuDrew.replace("{race}", raceName).replace("{card}", cardName));
-    const slot = placeCard(handCards, handLocs, slotIds, value, card, cardName);
-    if (slot === 4) {
-      logMessage(STR.log.cpuPasses.replace("{race}", raceName));
-      return { passed: true, score: scoreHand(handCards, EMPTY) };
-    }
-    return { passed: false, score: scoreHand(handCards, EMPTY) };
+const cpuTurn = (p, seatIdx) => {
+  if (p.passed === 1) return;
+  const threshold = cpuPassThreshold(p.race);
+  if (!cpuWantsToDraw(p.score, threshold)) {
+    logMessage(STR.log.cpuPasses.replace("{race}", p.name));
+    p.passed = 1;
+    return;
   }
-  logMessage(STR.log.cpuPasses.replace("{race}", raceName));
-  return { passed: true, score: cpuScore };
+  if (deckRemaining(deck) === 0) {
+    logMessage(STR.log.cpuPassesDeckDepleted.replace("{race}", p.name));
+    p.passed = 1;
+    return;
+  }
+  const card = drawFromDeck(deck);
+  const value = convert(card);
+  const cardName = compile(card);
+  logMessage(STR.log.cpuDrew.replace("{race}", p.name).replace("{card}", cardName));
+  const slot = placeCard(p, seatIdx, value, card, cardName);
+  if (slot === 4) {
+    logMessage(STR.log.cpuPasses.replace("{race}", p.name));
+    p.passed = 1;
+  }
+  p.score = scoreHand(p.cards, p.fieldValue);
 };
 
 const humanTurn = () => {
-  if (passed === 1) return;
+  const p = players[0];
+  if (p.passed === 1) return;
   if (deckRemaining(deck) === 0) {
     logMessage(STR.log.deckDepletedNoDraw);
     $("turnBtn").disabled = true;
-    passed = 1;
+    p.passed = 1;
     return;
   }
   const card = drawFromDeck(deck);
   const value = convert(card);
   const cardName = compile(card);
   logMessage(STR.log.youDrew.replace("{card}", cardName));
-  const slot = placeCard(cards, cardFiles, ["playerCard2", "playerCard3", "playerCard4"], value, card, cardName);
+  // Human is always at seat index where SEAT_ORDER[s] === 0
+  const humanSeatIdx = SEAT_ORDER.indexOf(0);
+  const slot = placeCard(p, humanSeatIdx, value, card, cardName);
   if (slot === 4) {
     $("turnBtn").disabled = true;
-    passed = 1;
+    p.passed = 1;
   }
+  p.score = scoreHand(p.cards, p.fieldValue);
 };
 
 const turn = () => {
   logMessage(STR.log.separator);
-  const r1 = cpuTurn(race1, score1, cards1, cardFiles1, ["cpu1Card2", "cpu1Card3", "cpu1Card4"], cpu1Passed);
-  cpu1Passed = r1.passed ? 1 : cpu1Passed;
-  score1 = r1.score;
-  humanTurn();
-  checkBomb();
-  const r2 = cpuTurn(race2, score2, cards2, cardFiles2, ["cpu2Card2", "cpu2Card3", "cpu2Card4"], cpu2Passed);
-  cpu2Passed = r2.passed ? 1 : cpu2Passed;
-  score2 = r2.score;
-
-  cpu1InterAI();
-  cpu2InterAI();
+  // Run CPUs and human in table (seat) order; splice human turn at its seat.
+  const humanSeat = SEAT_ORDER.indexOf(0);
+  for (let s = 0; s < NUM_PLAYERS; s++) {
+    if (s === humanSeat) {
+      humanTurn();
+      checkBomb();
+    } else {
+      cpuTurn(playerAt(s), s);
+    }
+  }
+  // CPU interference-field AI
+  for (let s = 0; s < NUM_PLAYERS; s++) {
+    if (s === humanSeat) continue;
+    cpuInterAI(playerAt(s), s);
+  }
   generate();
   scrollLog();
-  score = scoreHand(cards, playerFieldValue);
-  score1 = scoreHand(cards1, cpu1FieldValue);
-  score2 = scoreHand(cards2, cpu2FieldValue);
+  // Recompute all scores after the generator
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    players[i].score = scoreHand(players[i].cards, players[i].fieldValue);
+  }
   checkBomb();
 };
 
 const pass = () => {
-  passed = 1;
+  players[0].passed = 1;
   do {
     turn();
-  } while (cpu1Passed !== 1 || cpu2Passed !== 1);
+  } while (players.some((p) => !p.isHuman && p.passed !== 1));
 
-  $("cpu1Card0").src = `assets/cards/${cardFiles1[0]}`;
-  $("cpu1Card1").src = `assets/cards/${cardFiles1[1]}`;
-  $("cpu2Card0").src = `assets/cards/${cardFiles2[0]}`;
-  $("cpu2Card1").src = `assets/cards/${cardFiles2[1]}`;
-  score = scoreHand(cards, playerFieldValue);
-  score1 = scoreHand(cards1, cpu1FieldValue);
-  score2 = scoreHand(cards2, cpu2FieldValue);
+  // Reveal all CPU face-down cards
+  const humanSeat = SEAT_ORDER.indexOf(0);
+  for (let s = 0; s < NUM_PLAYERS; s++) {
+    if (s === humanSeat) continue;
+    const p = playerAt(s);
+    setImg(cardId(s, 0), `assets/cards/${p.cardFiles[0]}`);
+    setImg(cardId(s, 1), `assets/cards/${p.cardFiles[1]}`);
+  }
+  // Final scores
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    players[i].score = scoreHand(players[i].cards, players[i].fieldValue);
+  }
 
-  showToast(
-    STR.toast.roundOver
-      .replace("{race1}", race1)
-      .replace("{score1}", msg(score1))
-      .replace("{player}", playerName)
-      .replace("{score}", msg(score))
-      .replace("{race2}", race2)
-      .replace("{score2}", msg(score2)),
-    "info",
-  );
+  // Build round-over summary list in seat order
+  const summaryList = SEAT_ORDER.map((pIdx) => {
+    const p = players[pIdx];
+    return `${p.name}${msg(p.score)}`;
+  }).join(" | ");
+  showToast(STR.toast.roundOver.replace("{list}", summaryList), "info");
+
   scoreRound();
   resetRound();
 
-  const winner = decideWinner([points1, points2, points3]);
+  const winner = decideWinner(players.map((p) => p.points));
   if (winner.index < 0) {
     gamer();
   } else if (winner.tie) {
     showToast(STR.toast.tie, "info");
     setTimeout(ref, 2000);
   } else {
-    const names = [cpu1Name, cpu2Name, playerName];
-    showToast(STR.toast.winner.replace("{name}", names[winner.index]), "success");
+    showToast(STR.toast.winner.replace("{name}", players[winner.index].name), "success");
     setTimeout(ref, 3000);
   }
 };
@@ -690,50 +793,53 @@ const ref = () => { self.location.reload(); };
 // -----------------------------------------------------------------------------
 
 const dealCards = () => {
-  const a = drawFromDeck(deck);
-  const b = drawFromDeck(deck);
-  cardFiles[0] = a;
-  cardFiles[1] = b;
-  setImg("playerCard0", `assets/cards/${a}`);
-  setImg("playerCard1", `assets/cards/${b}`);
-  cards[0] = convert(a);
-  cards[1] = convert(b);
-  setAlt("playerCard0", compile(a));
-  setAlt("playerCard1", compile(b));
-  const a1 = drawFromDeck(deck);
-  const b1 = drawFromDeck(deck);
-  cardFiles1[0] = a1;
-  cardFiles1[1] = b1;
-  cards1[0] = convert(a1);
-  cards1[1] = convert(b1);
-  setAlt("cpu1Card0", "");
-  setAlt("cpu1Card1", "");
-  const a2 = drawFromDeck(deck);
-  const b2 = drawFromDeck(deck);
-  cardFiles2[0] = a2;
-  cardFiles2[1] = b2;
-  cards2[0] = convert(a2);
-  cards2[1] = convert(b2);
-  setAlt("cpu2Card0", "");
-  setAlt("cpu2Card1", "");
+  // 2 cards per player from the shared deck
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    const p = players[i];
+    const a = drawFromDeck(deck);
+    const b = drawFromDeck(deck);
+    p.cardFiles[0] = a;
+    p.cardFiles[1] = b;
+    p.cards[0] = convert(a);
+    p.cards[1] = convert(b);
+    const seatIdx = SEAT_ORDER.indexOf(i);
+    if (p.isHuman) {
+      setImg(cardId(seatIdx, 0), `assets/cards/${a}`);
+      setImg(cardId(seatIdx, 1), `assets/cards/${b}`);
+      setAlt(cardId(seatIdx, 0), compile(a));
+      setAlt(cardId(seatIdx, 1), compile(b));
+    } else {
+      setImg(cardId(seatIdx, 0), ASSET.wallp);
+      setImg(cardId(seatIdx, 1), ASSET.wallp);
+      setAlt(cardId(seatIdx, 0), "");
+      setAlt(cardId(seatIdx, 1), "");
+    }
+  }
   clearLog();
   scrollLog();
   checkBomb();
 };
 
 const gamer = () => {
-  cpu1FieldUsed = 0;
-  cpu2FieldUsed = 0;
-  passed = 0;
-  cpu1Passed = 0;
-  cpu2Passed = 0;
-  playerName = $("nameInput").value;
-  if (playerName === "") playerName = STR.defaultPlayerName;
+  // Reset per-round state
+  for (const p of players) {
+    p.passed = 0;
+    p.fieldUsed = 0;
+    p.fieldValue = EMPTY;
+    p.score = 0;
+  }
+  bomb = 0;
+  interIdx = -1;
+  blankedImgId = "";
+  interSavedFile = "";
+
+  players[0].name = $("nameInput").value || STR.defaultPlayerName;
   $("turnBtn").disabled = false;
-  setAlt("playerAvatar", playerName);
   $("startPanel").style.display = "none";
   $("game").style.display = "block";
   startMusic();
+  buildGameBoard();
+  setAlt("playerAvatar", players[0].name);
   rollCpuFavorites();
   dealCards();
   setupDragAndDrop();
@@ -741,40 +847,30 @@ const gamer = () => {
 
 const resetRound = () => {
   bomb = 0;
-  playerFieldValue = EMPTY;
-  cpu1FieldValue = EMPTY;
-  cpu2FieldValue = EMPTY;
   interIdx = -1;
   blankedImgId = "";
   interSavedFile = "";
-  score = 0;
-  score1 = 0;
-  score2 = 0;
-  // Keep opponents across rounds (opponentsRolled stays true).
-
-  cards = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-  cards1 = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-  cards2 = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
-  cardFiles = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-  cardFiles1 = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-  cardFiles2 = ["jpg", "jpg", "jpg", "jpg", "jpg"];
-  favorites1 = Array(10).fill("jpg");
-  favorites2 = Array(10).fill("jpg");
+  for (const p of players) {
+    p.fieldValue = EMPTY;
+    p.fieldUsed = 0;
+    p.score = 0;
+    p.passed = 0;
+    p.cards = [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY];
+    p.cardFiles = ["jpg", "jpg", "jpg", "jpg", "jpg"];
+    p.favorites = Array(10).fill("jpg");
+  }
   deck = buildDeck();
 
-  for (const id of ["playerField", "cpu1Field", "cpu2Field"]) setImg(id, ASSET.field);
-  setAlt("playerField", STR.alt.yourField);
-  setAlt("cpu1Field", STR.alt.opponentField);
-  setAlt("cpu2Field", STR.alt.opponentField);
-  for (const id of ["playerCard0", "playerCard1", "playerCard2", "playerCard3", "playerCard4"]) setImg(id, ASSET.blank);
-  for (const id of ["cpu1Card0", "cpu1Card1", "cpu2Card0", "cpu2Card1"]) setImg(id, ASSET.wallp);
-  for (const id of ["cpu1Card2", "cpu1Card3", "cpu1Card4", "cpu2Card2", "cpu2Card3", "cpu2Card4"]) setImg(id, ASSET.blank);
-  for (const id of [
-    "playerCard0", "playerCard1", "playerCard2", "playerCard3", "playerCard4",
-    "cpu1Card0", "cpu1Card1", "cpu1Card2", "cpu1Card3", "cpu1Card4",
-    "cpu2Card0", "cpu2Card1", "cpu2Card2", "cpu2Card3", "cpu2Card4",
-  ]) {
-    setAlt(id, "");
+  // Reset all card images and field images
+  const humanSeat = SEAT_ORDER.indexOf(0);
+  for (let s = 0; s < NUM_PLAYERS; s++) {
+    const p = playerAt(s);
+    setImg(fieldId(s), ASSET.field);
+    setAlt(fieldId(s), s === humanSeat ? STR.alt.yourField : STR.alt.opponentField);
+    for (let slot = 0; slot <= 4; slot++) {
+      setImg(cardId(s, slot), p.isHuman ? ASSET.blank : (slot < 2 ? ASSET.wallp : ASSET.blank));
+      setAlt(cardId(s, slot), "");
+    }
   }
 };
 
@@ -784,24 +880,19 @@ const resetRound = () => {
 
 const opps = () => {
   if (opponentsRolled) return;
-  const [r1Name, r2Name] = pickOpponents();
-  race1 = r1Name;
-  race2 = r2Name;
+  const races = pickOpponents();
+  for (let i = 1; i <= NUM_CPUS; i++) {
+    players[i].race = races[i - 1];
+    players[i].name = races[i - 1];
+    const seatIdx = SEAT_ORDER.indexOf(i);
+    const avatarIdx = CPU_RACES.findIndex((r) => r.name === races[i - 1]);
+    setImg(avatarId(seatIdx), `${ASSET.avatarDir}cpu${avatarIdx + 1}.gif`);
+    setAlt(avatarId(seatIdx), races[i - 1]);
+  }
 
-  const avatarFor = (raceName) => {
-    const idx = CPU_RACES.findIndex((r) => r.name === raceName);
-    return `${ASSET.avatarDir}cpu${idx + 1}.gif`;
-  };
-
-  cpu1Name = race1;
-  setImg("cpu1Avatar", avatarFor(race1));
-  setAlt("cpu1Avatar", race1);
-
-  cpu2Name = race2;
-  setImg("cpu2Avatar", avatarFor(race2));
-  setAlt("cpu2Avatar", race2);
-
-  logMessage(STR.log.opponents.replace("{cpu1}", cpu1Name).replace("{cpu2}", cpu2Name));
+  const oppNames = players.slice(1).map((p) => p.name);
+  const namesList = oppNames.join(", ");
+  logMessage(STR.log.opponents.replace("{names}", namesList));
   logMessage(STR.log.firstPair);
   opponentsRolled = true;
 };
@@ -811,42 +902,32 @@ const opps = () => {
 // -----------------------------------------------------------------------------
 
 const rollCpuFavorites = () => {
-  favorites1 = rollFavorites();
-  favorites2 = rollFavorites();
+  for (let i = 1; i <= NUM_CPUS; i++) {
+    players[i].favorites = rollFavorites();
+  }
 };
 
-const cpuInterai = (favorites, handCards, handLocs, fieldValue, fieldUsed, fieldId, slotIdPrefix) => {
-  if (fieldValue !== EMPTY || fieldUsed === 1) return { fieldValue, fieldUsed };
-  for (let aj = 0; aj < favorites.length; aj++) {
-    for (let ij = 0; ij < handLocs.length; ij++) {
-      if (handLocs[ij] === favorites[aj]) {
-        const savedValue = handCards[ij];
-        const savedLoc = handLocs[ij];
-        handCards[ij] = 0;
-        handLocs[ij] = "field.gif";
+const cpuInterAI = (p, seatIdx) => {
+  if (p.fieldValue !== EMPTY || p.fieldUsed === 1) return;
+  for (let aj = 0; aj < p.favorites.length; aj++) {
+    for (let ij = 0; ij < p.cardFiles.length; ij++) {
+      if (p.cardFiles[ij] === p.favorites[aj]) {
+        const savedValue = p.cards[ij];
+        const savedLoc = p.cardFiles[ij];
+        p.cards[ij] = 0;
+        p.cardFiles[ij] = "field.gif";
         const cardName = compile(savedLoc);
         const toOppField = STR.alt.cardToOpponentField.replace("{card}", cardName);
-        setImg(fieldId, `assets/cards/${savedLoc}`);
-        setAlt(fieldId, toOppField);
-        setAlt(`${slotIdPrefix}${ij}`, toOppField);
-        setImg(`${slotIdPrefix}${ij}`, ASSET.field);
-        return { fieldValue: savedValue, fieldUsed: 1 };
+        setImg(fieldId(seatIdx), `assets/cards/${savedLoc}`);
+        setAlt(fieldId(seatIdx), toOppField);
+        setAlt(cardId(seatIdx, ij), toOppField);
+        setImg(cardId(seatIdx, ij), ASSET.field);
+        p.fieldValue = savedValue;
+        p.fieldUsed = 1;
+        return;
       }
     }
   }
-  return { fieldValue, fieldUsed };
-};
-
-const cpu1InterAI = () => {
-  const r = cpuInterai(favorites1, cards1, cardFiles1, cpu1FieldValue, cpu1FieldUsed, "cpu1Field", "cpu1Card");
-  cpu1FieldValue = r.fieldValue;
-  cpu1FieldUsed = r.fieldUsed;
-};
-
-const cpu2InterAI = () => {
-  const r = cpuInterai(favorites2, cards2, cardFiles2, cpu2FieldValue, cpu2FieldUsed, "cpu2Field", "cpu2Card");
-  cpu2FieldValue = r.fieldValue;
-  cpu2FieldUsed = r.fieldUsed;
 };
 
 // -----------------------------------------------------------------------------
@@ -854,44 +935,44 @@ const cpu2InterAI = () => {
 // -----------------------------------------------------------------------------
 
 const moveToField = (slotIdx) => {
-  const clickedImgId = `playerCard${slotIdx}`;
-  const isSlotEmpty =
-    (clickedImgId === "playerCard2" && cards[2] === EMPTY) ||
-    (clickedImgId === "playerCard3" && cards[3] === EMPTY) ||
-    (clickedImgId === "playerCard4" && cards[4] === EMPTY);
-  if (isSlotEmpty) return;
+  const p = players[0];
+  const humanSeat = SEAT_ORDER.indexOf(0);
+  const clickedImgId = cardId(humanSeat, slotIdx);
+  if (p.cards[slotIdx] === EMPTY) return;
 
-  if (playerFieldValue !== EMPTY) {
+  if (p.fieldValue !== EMPTY) {
     showToast(STR.toast.fieldOccupied, "error");
     return;
   }
-  playerFieldValue = cards[slotIdx];
+  p.fieldValue = p.cards[slotIdx];
   interIdx = slotIdx;
   blankedImgId = clickedImgId;
-  interSavedFile = cardFiles[slotIdx];
-  const cardName = compile(cardFiles[slotIdx]);
+  interSavedFile = p.cardFiles[slotIdx];
+  const cardName = compile(p.cardFiles[slotIdx]);
   const toYourField = STR.alt.cardToYourField.replace("{card}", cardName);
-  setImg("playerField", `assets/cards/${cardFiles[slotIdx]}`);
-  setAlt("playerField", toYourField);
-  setAlt(`playerCard${slotIdx}`, toYourField);
+  setImg(fieldId(humanSeat), `assets/cards/${p.cardFiles[slotIdx]}`);
+  setAlt(fieldId(humanSeat), toYourField);
+  setAlt(clickedImgId, toYourField);
   $(clickedImgId).src = ASSET.field;
-  cardFiles[slotIdx] = "jpg";
-  cards[slotIdx] = 0;
+  p.cardFiles[slotIdx] = "jpg";
+  p.cards[slotIdx] = 0;
 };
 
 const retrieveFromField = () => {
-  if (playerFieldValue === EMPTY) {
+  const p = players[0];
+  const humanSeat = SEAT_ORDER.indexOf(0);
+  if (p.fieldValue === EMPTY) {
     showToast(STR.toast.nothingToRetrieve, "error");
     return;
   }
-  if (cards[interIdx] === 0) cards[interIdx] = playerFieldValue;
-  cardFiles[interIdx] = interSavedFile;
+  if (p.cards[interIdx] === 0) p.cards[interIdx] = p.fieldValue;
+  p.cardFiles[interIdx] = interSavedFile;
   const cardName = compile(interSavedFile);
-  setImg("playerField", ASSET.field);
-  setAlt("playerField", STR.alt.yourField);
-  setAlt(`playerCard${interIdx}`, cardName);
+  setImg(fieldId(humanSeat), ASSET.field);
+  setAlt(fieldId(humanSeat), STR.alt.yourField);
+  setAlt(cardId(humanSeat, interIdx), cardName);
   $(blankedImgId).src = `assets/cards/${interSavedFile}`;
-  playerFieldValue = EMPTY;
+  p.fieldValue = EMPTY;
   interIdx = -1;
   blankedImgId = "";
   interSavedFile = "";
@@ -901,7 +982,8 @@ const retrieveFromField = () => {
 const onCardDragStart = (e) => {
   const img = e.currentTarget;
   const slotIdx = Number(img.dataset.slot);
-  if (cards[slotIdx] === EMPTY || cards[slotIdx] === 0) {
+  const p = players[0];
+  if (p.cards[slotIdx] === EMPTY || p.cards[slotIdx] === 0) {
     e.preventDefault();
     return;
   }
@@ -936,7 +1018,7 @@ const onFieldDrop = (e) => {
 };
 
 const onCardDragOver = (e) => {
-  if (playerFieldValue !== EMPTY) {
+  if (players[0].fieldValue !== EMPTY) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   }
@@ -944,13 +1026,13 @@ const onCardDragOver = (e) => {
 
 const onCardDrop = (e) => {
   e.preventDefault();
-  if (playerFieldValue !== EMPTY) retrieveFromField();
+  if (players[0].fieldValue !== EMPTY) retrieveFromField();
 };
 
 const setupDragAndDrop = () => {
-  // Make player cards draggable
+  const humanSeat = SEAT_ORDER.indexOf(0);
   for (let i = 0; i <= 4; i++) {
-    const img = $(`playerCard${i}`);
+    const img = $(cardId(humanSeat, i));
     if (!img) continue;
     img.draggable = true;
     img.dataset.slot = String(i);
@@ -959,15 +1041,13 @@ const setupDragAndDrop = () => {
     img.addEventListener("dragover", onCardDragOver);
     img.addEventListener("drop", onCardDrop);
   }
-  // Make the player field drop zone (a div wrapper) a drop target
   const zone = $("playerFieldDrop");
   if (zone) {
     zone.addEventListener("dragover", onFieldDragOver);
     zone.addEventListener("dragleave", onFieldDragLeave);
     zone.addEventListener("drop", onFieldDrop);
   }
-  // Click on the field image also retrieves
-  const field = $("playerField");
+  const field = $(fieldId(humanSeat));
   if (field) {
     field.addEventListener("click", () => retrieveFromField());
   }
@@ -991,38 +1071,31 @@ const generate = () => {
   $("genCard1").value = q1;
   $("genCard2").value = q2;
 
-  // Pure swap logic
-  const result = generatorSwap(
-    {
-      player: { locs: cardFiles, cards },
-      cpu1:   { locs: cardFiles1, cards: cards1 },
-      cpu2:   { locs: cardFiles2, cards: cards2 },
-    },
-    g1, g2,
-  );
+  // Build hands map keyed by player index string
+  const hands = {};
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    hands[`p${i}`] = { locs: players[i].cardFiles, cards: players[i].cards };
+  }
+  const result = generatorSwap(hands, g1, g2);
 
   if (!result.swapped) return;
 
-  // Render any swapped cards
-  const renderSwaps = (locs, changed, slotIds) => {
-    if (!changed) return;
-    for (let i = 0; i < locs.length; i++) {
-      if (locs[i] === g2) {
-        setImg(slotIds[i], `assets/cards/${g2}`);
-        setAlt(slotIds[i], q2);
+  // Render any swapped cards and write back
+  for (let i = 0; i < NUM_PLAYERS; i++) {
+    const key = `p${i}`;
+    const r = result[key];
+    const seatIdx = SEAT_ORDER.indexOf(i);
+    if (r.changed) {
+      for (let s = 0; s < r.locs.length; s++) {
+        if (r.locs[s] === g2) {
+          setImg(cardId(seatIdx, s), `assets/cards/${g2}`);
+          setAlt(cardId(seatIdx, s), q2);
+        }
       }
     }
-  };
-  renderSwaps(result.player.locs, result.player.changed, ["playerCard0", "playerCard1", "playerCard2", "playerCard3", "playerCard4"]);
-  renderSwaps(result.cpu1.locs,   result.cpu1.changed,   ["cpu1Card0", "cpu1Card1", "cpu1Card2", "cpu1Card3", "cpu1Card4"]);
-  renderSwaps(result.cpu2.locs,   result.cpu2.changed,   ["cpu2Card0", "cpu2Card1", "cpu2Card2", "cpu2Card3", "cpu2Card4"]);
-
-  cardFiles = result.player.locs;
-  cards = result.player.cards;
-  cardFiles1 = result.cpu1.locs;
-  cards1 = result.cpu1.cards;
-  cardFiles2 = result.cpu2.locs;
-  cards2 = result.cpu2.cards;
+    players[i].cardFiles = r.locs;
+    players[i].cards = r.cards;
+  }
 
   updateScore();
 };
@@ -1043,9 +1116,7 @@ const startMusic = () => {
 
 const setupKeyboard = () => {
   document.addEventListener("keydown", (e) => {
-    // Only act when the game screen is visible
     if ($("game").style.display !== "block") return;
-    // Don't interfere with form inputs
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.code === "Space") {
       e.preventDefault();
@@ -1061,8 +1132,6 @@ const setupKeyboard = () => {
 // Init — runs on script load in the browser
 // -----------------------------------------------------------------------------
 
-// Script loads in <head> before <body> is parsed, so defer DOM access
-// until the DOM is ready.
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setupKeyboard();
@@ -1110,5 +1179,7 @@ if (typeof window !== "undefined") {
     WIN_THRESHOLD,
     EMPTY,
     CPU_RACES,
+    NUM_CPUS,
+    NUM_PLAYERS,
   };
 }

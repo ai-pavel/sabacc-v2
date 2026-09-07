@@ -14,7 +14,7 @@ body {
   background: #000 url(../assets/images/bg.jpg) no-repeat center center fixed;
   background-size: cover;
   color: yellow;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   font-size: 14px;
   min-height: 100vh;
   display: flex;
@@ -25,17 +25,17 @@ body {
 /* ----- Hyperlinks ----- */
 a:link, a:active, a:visited {
   color: yellow;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 a:hover {
   color: red;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   text-decoration: none;
 }
 
 /* ----- Screens (start panel & game panel) ----- */
 .screen {
-  width: 720px;
+  width: 900px;
   box-sizing: border-box;
 }
 .game-screen {
@@ -72,7 +72,7 @@ a:hover {
 .title {
   font-size: 18px;
   color: yellow;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   text-align: center;
   margin: 0 0 16px;
 }
@@ -81,7 +81,7 @@ a:hover {
 .formControl {
   font-size: 12px;
   color: yellow;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   background-color: #000;
   border: 1px solid #444;
   padding: 2px 4px;
@@ -91,7 +91,7 @@ a:hover {
 .label {
   font-size: 14px;
   color: yellow;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 /* ----- Top row: generator | interference field | log ----- */
@@ -126,8 +126,7 @@ a:hover {
 
 /* Interference field panel — uses ib.gif (128x128) */
 .field-panel {
-  width: 250px;
-  flex-shrink: 0;
+  flex: 0 1 360px;
   background: url(../assets/ui/ib.gif) no-repeat center center;
   background-size: 100% 100%;
   display: flex;
@@ -149,8 +148,8 @@ a:hover {
   justify-content: center;
 }
 .field-slots img {
-  width: 66px;
-  height: 95px;
+  width: 54px;
+  height: 78px;
 }
 .field-hint {
   font-size: 10px;
@@ -174,7 +173,7 @@ a:hover {
 .log-panel {
   flex: 1;
   min-width: 0;
-  background: url(../assets/ui/back3.gif);
+  background: #99adc6;
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -195,12 +194,12 @@ a:hover {
 /* ----- Event log textarea ----- */
 .eventLogStyle {
   font-size: 11px;
-  background-color: #000;
+  background-color: #99adc6;
   background-image: url(../assets/images/bith.jpg);
   background-repeat: no-repeat;
-  background-position: center;
-  color: #ccc;
-  font-family: "Courier New", monospace;
+  background-position: right center;
+  color: #1a2332;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   border: 1px solid #444;
   line-height: 1.4;
   padding: 4px 6px;
@@ -232,8 +231,8 @@ a:hover {
   justify-content: center;
 }
 .hand img {
-  width: 66px;
-  height: 95px;
+  width: 50px;
+  height: 72px;
 }
 
 /* Player cards are draggable */
@@ -259,8 +258,8 @@ a:hover {
   box-sizing: border-box;
 }
 .avatar-row img {
-  width: 65px;
-  height: 65px;
+  width: 55px;
+  height: 55px;
 }
 
 /* ----- Tournament standings panel (under avatars) ----- */
@@ -289,7 +288,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 120px;
+  min-width: 100px;
 }
 .score-name {
   font-size: 12px;
@@ -325,7 +324,7 @@ a:hover {
 .toast {
   padding: 10px 20px;
   border-radius: 6px;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   font-size: 14px;
   color: #fff;
   opacity: 0;
@@ -359,5 +358,5 @@ a:hover {
   font-size: 14px;
   background-image: url(../assets/ui/ib.gif);
   color: #000033;
-  font-family: Palatino Linotype, serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }

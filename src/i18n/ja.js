@@ -59,7 +59,7 @@
       welcome: "{name}、幸運を。うぬぼれないように!",
       roundHeader: "ラウンド {n}",
       yourScore: "- 現在のスコア: {score}",
-      opponents: "- 対戦相手は {cpu1} と {cpu2}",
+      opponents: "- 対戦相手は {names}",
       firstPair: "- 最初のペアが配られました",
       youDrew: '- カード「{card}」を引きました',
       cpuDrew: '- {race} がカード「{card}」を引きました',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- 山札切れ \u2014 ドロー不可",
       generatorReplaced: '- ジェネレータが「{g1}」を「{g2}」に置換',
       generatorDeckDepleted: "- ジェネレータ: 山札切れ",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "純サバック!",
       fieldOccupied: "干渉フィールドが埋まっています!",
       nothingToRetrieve: "戻すカードがありません \u2014 先にカードを置いてください",
-      roundOver:
-        "ラウンド終了! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "ラウンド終了! {list}",
       tie: "トーナメントは引き分け!",
       winner: "{name} がトーナメント優勝!",
     },

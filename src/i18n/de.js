@@ -59,7 +59,7 @@
       welcome: "{name}, viel Glück und werde nicht übermütig!",
       roundHeader: "Runde {n}",
       yourScore: "- Dein aktueller Punktestand: {score}",
-      opponents: "- Deine Gegner sind {cpu1} und {cpu2}",
+      opponents: "- Deine Gegner sind {names}",
       firstPair: "- Dein erstes Paar wurde ausgeteilt",
       youDrew: '- Du hast die Karte „{card}“ gezogen',
       cpuDrew: '- {race} hat die Karte „{card}“ gezogen',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- Stapel leer \u2014 kein Ziehen mehr",
       generatorReplaced: '- Generator ersetzte „{g1}“ durch „{g2}“',
       generatorDeckDepleted: "- Generator: Stapel leer",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "Reines Sabacc!",
       fieldOccupied: "Interferenzfeld belegt!",
       nothingToRetrieve: "Nichts zurückzulegen \u2014 zuerst eine Karte ins Feld",
-      roundOver:
-        "Runde vorbei! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "Runde vorbei! {list}",
       tie: "Das Turnier endet unentschieden!",
       winner: "{name} gewinnt das Turnier!",
     },

@@ -64,7 +64,7 @@
       welcome: "{name}, good luck and don't get cocky!",
       roundHeader: "Round {n}",
       yourScore: "- Your current score: {score}",
-      opponents: "- Your opponents are {cpu1} and {cpu2}",
+      opponents: "- Your opponents are {names}",
       firstPair: "- Your first pair has been dealt",
       youDrew: '- You drew card "{card}"',
       cpuDrew: '- {race} drew card "{card}"',
@@ -73,7 +73,7 @@
       deckDepletedNoDraw: "- Deck depleted \u2014 no more draws",
       generatorReplaced: '- Random generator replaced card "{g1}" with "{g2}"',
       generatorDeckDepleted: "- Random generator: deck depleted",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     // ---- Toast notifications ------------------------------------------
@@ -82,8 +82,7 @@
       pureSabacc: "Pure Sabacc!",
       fieldOccupied: "Interference field is occupied!",
       nothingToRetrieve: "Nothing to put back \u2014 move a card to the field first",
-      roundOver:
-        "Round over! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "Round over! {list}",
       tie: "Tournament ends in a tie!",
       winner: "{name} wins the tournament!",
     },

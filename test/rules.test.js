@@ -30,6 +30,8 @@ const {
   cpuPassThreshold,
   cpuWantsToDraw,
   CPU_RACES,
+  NUM_CPUS,
+  NUM_PLAYERS,
   pickOpponents,
   swapCardInLocations,
   randomGeneratorStep,
@@ -204,11 +206,14 @@ test("cpuPassThreshold returns the race's threshold", () => {
 // pickOpponents() — two distinct random races
 // ---------------------------------------------------------------------------
 
-test("pickOpponents returns two distinct race names", () => {
-  const [a, b] = pickOpponents();
-  assert.notEqual(a, b);
-  assert.ok(CPU_RACES.some((r) => r.name === a));
-  assert.ok(CPU_RACES.some((r) => r.name === b));
+test("pickOpponents returns NUM_CPUS distinct race names", () => {
+  const opps = pickOpponents();
+  assert.equal(opps.length, NUM_CPUS, `should return ${NUM_CPUS} opponents`);
+  const unique = new Set(opps);
+  assert.equal(unique.size, NUM_CPUS, "opponents must be distinct");
+  for (const name of opps) {
+    assert.ok(CPU_RACES.some((r) => r.name === name), `${name} is a valid race`);
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -725,10 +730,13 @@ test("cpuPassThreshold returns correct threshold for each race", () => {
 
 test("pickOpponents returns valid race names from the list", () => {
   for (let i = 0; i < 50; i++) {
-    const [a, b] = pickOpponents();
-    assert.ok(CPU_RACES.some((r) => r.name === a), `${a} is a valid race`);
-    assert.ok(CPU_RACES.some((r) => r.name === b), `${b} is a valid race`);
-    assert.notEqual(a, b, "opponents must be distinct");
+    const opps = pickOpponents();
+    assert.equal(opps.length, NUM_CPUS);
+    const unique = new Set(opps);
+    assert.equal(unique.size, NUM_CPUS, "opponents must be distinct");
+    for (const name of opps) {
+      assert.ok(CPU_RACES.some((r) => r.name === name), `${name} is a valid race`);
+    }
   }
 });
 
@@ -816,6 +824,31 @@ test("generatorSwap replaces in all three hands simultaneously", () => {
   assert.deepEqual(result.player.locs, ["5s.jpg", "2f.jpg"]);
   assert.deepEqual(result.cpu1.locs, ["5s.jpg", "3p.jpg"]);
   assert.deepEqual(result.cpu2.locs, ["5s.jpg", "4s.jpg"]);
+});
+
+test("generatorSwap works with 5 hands (4 CPU + 1 player)", () => {
+  const hands = {
+    p0: { locs: ["1c.jpg", "2f.jpg"], cards: [1, 2] },
+    p1: { locs: ["1c.jpg", "3p.jpg"], cards: [1, 3] },
+    p2: { locs: ["1c.jpg", "4s.jpg"], cards: [1, 4] },
+    p3: { locs: ["5c.jpg", "6f.jpg"], cards: [5, 6] },
+    p4: { locs: ["1c.jpg", "7p.jpg"], cards: [1, 7] },
+  };
+  const result = generatorSwap(hands, "1c.jpg", "9s.jpg");
+  assert.equal(result.swapped, true);
+  assert.equal(result.p0.changed, true);
+  assert.equal(result.p1.changed, true);
+  assert.equal(result.p2.changed, true);
+  assert.equal(result.p3.changed, false);
+  assert.equal(result.p4.changed, true);
+  assert.deepEqual(result.p0.locs, ["9s.jpg", "2f.jpg"]);
+  assert.deepEqual(result.p3.locs, ["5c.jpg", "6f.jpg"]);
+  assert.deepEqual(result.p4.locs, ["9s.jpg", "7p.jpg"]);
+});
+
+test("NUM_CPUS is 4 and NUM_PLAYERS is 5", () => {
+  assert.equal(NUM_CPUS, 4);
+  assert.equal(NUM_PLAYERS, 5);
 });
 
 // ---------------------------------------------------------------------------

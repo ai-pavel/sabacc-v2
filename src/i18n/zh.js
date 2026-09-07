@@ -59,7 +59,7 @@
       welcome: "{name}, 祝你好运, 别得意忘形!",
       roundHeader: "第 {n} 回合",
       yourScore: "- 当前分数: {score}",
-      opponents: "- 你的对手是 {cpu1} 和 {cpu2}",
+      opponents: "- 你的对手是 {names}",
       firstPair: "- 你的首对牌已发出",
       youDrew: '- 你抽到了「{card}」',
       cpuDrew: '- {race} 抽到了「{card}」',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- 牌堆耗尽 \u2014 无法再抽",
       generatorReplaced: '- 随机生成器把「{g1}」替换为「{g2}」',
       generatorDeckDepleted: "- 生成器: 牌堆耗尽",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "纯萨巴克!",
       fieldOccupied: "干涉场已被占用!",
       nothingToRetrieve: "没有可取回的牌 \u2014 请先把一张牌放入干涉场",
-      roundOver:
-        "回合结束! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "回合结束! {list}",
       tie: "锦标赛以平局结束!",
       winner: "{name} 赢得锦标赛!",
     },

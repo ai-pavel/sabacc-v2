@@ -59,7 +59,7 @@
       welcome: "{name}, boa sorte e não fique arrogante!",
       roundHeader: "Rodada {n}",
       yourScore: "- Sua pontuação atual: {score}",
-      opponents: "- Seus oponentes são {cpu1} e {cpu2}",
+      opponents: "- Seus oponentes são {names}",
       firstPair: "- Sua primeira par foi distribuída",
       youDrew: '- Você sacou a carta "{card}"',
       cpuDrew: '- {race} sacou a carta "{card}"',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- Baralho esgotado \u2014 sem mais saques",
       generatorReplaced: '- O gerador trocou "{g1}" por "{g2}"',
       generatorDeckDepleted: "- Gerador: baralho esgotado",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "Sabacc puro!",
       fieldOccupied: "Campo de interferência ocupado!",
       nothingToRetrieve: "Nada para devolver \u2014 mova uma carta primeiro",
-      roundOver:
-        "Rodada encerrada! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "Rodada encerrada! {list}",
       tie: "O torneio termina em empate!",
       winner: "{name} vence o torneio!",
     },

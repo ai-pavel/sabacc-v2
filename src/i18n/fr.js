@@ -59,7 +59,7 @@
       welcome: "{name}, bonne chance et restez humble !",
       roundHeader: "Manche {n}",
       yourScore: "- Votre score actuel : {score}",
-      opponents: "- Vos adversaires sont {cpu1} et {cpu2}",
+      opponents: "- Vos adversaires sont {names}",
       firstPair: "- Votre première paire a été distribuée",
       youDrew: '- Vous avez pioché la carte « {card} »',
       cpuDrew: '- {race} a pioché la carte « {card} »',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- Paquet épuisé \u2014 plus de pioche",
       generatorReplaced: '- Le générateur a remplacé « {g1} » par « {g2} »',
       generatorDeckDepleted: "- Générateur : paquet épuisé",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "Sabacc pur !",
       fieldOccupied: "Champ d'interférence occupé !",
       nothingToRetrieve: "Rien à reprendre \u2014 déplacez d'abord une carte",
-      roundOver:
-        "Manche terminée ! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "Manche terminée ! {list}",
       tie: "Le tournoi se termine sur une égalité !",
       winner: "{name} remporte le tournoi !",
     },

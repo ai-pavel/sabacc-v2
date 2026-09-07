@@ -59,7 +59,7 @@
       welcome: "{name}, buona fortuna e non montarti la testa!",
       roundHeader: "Turno {n}",
       yourScore: "- Punteggio attuale: {score}",
-      opponents: "- I tuoi avversari sono {cpu1} e {cpu2}",
+      opponents: "- I tuoi avversari sono {names}",
       firstPair: "- Hai ricevuto la tua prima coppia",
       youDrew: '- Hai pescato la carta "{card}"',
       cpuDrew: '- {race} ha pescato la carta "{card}"',
@@ -68,7 +68,7 @@
       deckDepletedNoDraw: "- Mazzo esaurito \u2014 niente più pescate",
       generatorReplaced: '- Il generatore ha sostituito "{g1}" con "{g2}"',
       generatorDeckDepleted: "- Generatore: mazzo esaurito",
-      separator: "************************************************************",
+      separator: "***********************************************************",
     },
 
     toast: {
@@ -76,8 +76,7 @@
       pureSabacc: "Sabacc puro!",
       fieldOccupied: "Campo di interferenza occupato!",
       nothingToRetrieve: "Niente da riprendere \u2014 sposta prima una carta",
-      roundOver:
-        "Turno finito! {race1}{score1} | {player}{score} | {race2}{score2}",
+      roundOver: "Turno finito! {list}",
       tie: "Il torneo finisce in parità!",
       winner: "{name} vince il torneo!",
     },
