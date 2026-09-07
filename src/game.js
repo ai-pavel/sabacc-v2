@@ -1084,12 +1084,10 @@ const renderHallOfFame = () => {
     if (hofSortKey === "rounds") return b.rounds - a.rounds;
     if (hofSortKey === "pureSabaccs") return (b.pureSabaccs || 0) - (a.pureSabaccs || 0);
     if (hofSortKey === "time") return a.time - b.time;
-    if (hofSortKey === "difficulty") return (b.difficulty || "").localeCompare(a.difficulty || "");
     return 0;
   }).slice(0, HOF_MAX);
-  const diffLabel = (d) => d ? (STR.difficulty[d] || d) : "—";
   const rows = sorted.map((e, i) =>
-    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${e.pureSabaccs || 0}</td><td>${diffLabel(e.difficulty)}</td><td>${formatTime(e.time)}</td></tr>`
+    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${e.pureSabaccs || 0}</td><td>${formatTime(e.time)}</td></tr>`
   ).join("");
   const sortAttr = (key) => key === hofSortKey ? ' class="sort-active"' : "";
   container.innerHTML =
@@ -1098,7 +1096,6 @@ const renderHallOfFame = () => {
     `<th${sortAttr("score")} onclick="hofSort('score')">${STR.hof.score}</th>` +
     `<th${sortAttr("rounds")} onclick="hofSort('rounds')">${STR.hof.rounds}</th>` +
     `<th${sortAttr("pureSabaccs")} onclick="hofSort('pureSabaccs')">${STR.hof.pureSabaccs}</th>` +
-    `<th${sortAttr("difficulty")} onclick="hofSort('difficulty')">${STR.hof.difficulty}</th>` +
     `<th${sortAttr("time")} onclick="hofSort('time')">${STR.hof.time}</th>` +
     `</tr>${rows}</table>`;
 };
