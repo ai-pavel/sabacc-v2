@@ -61,6 +61,7 @@
       rules: "\uD83D\uDCDC Reglas del juego",
       rulesTitle: "Reglas del Sabacc",
       difficultyTitle: "Elige tu camino",
+      rulesetTitle: "Elige tu variante de Sabacc",
       mainMenu: "Menú principal",
       playAgain: "Jugar de nuevo",
     },
@@ -176,6 +177,26 @@
       generatorReplaced: '- El generador reemplazó la carta "{g1}" por "{g2}"',
       generatorDeckDepleted: "- Generador: mazo agotado",
       separator: "***********************************************************",
+      traditional:
+        "<h3>Objetivo</h3><p>Ser el primero en superar el umbral de puntos.</p>" +
+        "<h3>Baraja</h3><p>76 cartas: 1-15 en 4 palos + 16 cartas de figura.</p>" +
+        "<h3>Meta</h3><p>Acercarse a +/-23. Idiota + 2 + 3 = Array del Idiota (Sabacc puro).</p>" +
+        "<h3>Generador</h3><p>Toma 2 cartas cada turno; reemplaza la primera con la segunda.</p>" +
+        "<h3>Campo</h3><p>Protege 1 carta del generador.</p>",
+      spike:
+        "<h3>Corellian Spike</h3><p>Variante rapida con baraja menor y dados.</p>" +
+        "<h3>Baraja</h3><p>42 cartas: 4 palos 1-10 + 2 Idiotas (0).</p>" +
+        "<h3>Meta</h3><p>Acercarse a <b>0</b> (no a 23).</p>" +
+        "<h3>Dados</h3><p>Cada turno se tiran 2 dados. <b>Dobles</b> cambian todas las cartas.</p>" +
+        "<h3>Puntos</h3><p>0 = Sabacc puro (+60 pts). Bomba si lejos de 0. Sino |puntos| pts.</p>" +
+        "<h3>Sin campo</h3><p>No hay campo de interferencia.</p>",
+      gungan:
+        "<h3>Otoh Gunga</h3><p>Variante donde <b>los puntajes bajos ganan</b>.</p>" +
+        "<h3>Baraja</h3><p>76 cartas estandar.</p>" +
+        "<h3>Meta</h3><p>Cercano a <b>0</b>. Menor |puntaje| gana. 0 = Sabacc puro.</p>" +
+        "<h3>Generador</h3><p>Activo como en tradicional.</p>" +
+        "<h3>Campo</h3><p>Disponible, mismas reglas.</p>" +
+        "<h3>Puntos</h3><p>0 = Sabacc puro (+46 pts). Sino |puntaje| pts.</p>",
     },
 
     toast: {
@@ -194,7 +215,19 @@
       bomb: " bombado :(",
       pureSabacc: " ¡Sabacc puro!",
       valid: " {points} pts.",
-    },    // ---- Difficulty presets ----
+    },
+
+    // ---- Ruleset variants ----
+    ruleset: {
+      traditional: "Sabacc tradicional",
+      traditionalDesc: "76 cartas, objetivo +/-23, generador, campo de interferencia",
+      spike: "Corellian Spike",
+      spikeDesc: "42 cartas, objetivo 0, dados en lugar de generador, dobles cambian cartas",
+      gungan: "Otoh Gunga",
+      gunganDesc: "Baraja estandar, gana el menor puntaje, mas cerca de 0",
+    },
+
+    // ---- Difficulty presets ----
     difficulty: {
       youngling: "🟢 Joven",
       younglingDesc: "Entrenamiento en el Templo Jedi - 1 oponente normal, partidas rapidas",

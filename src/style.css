@@ -351,6 +351,25 @@ a:hover {
   scrollbar-width: thin;
   scrollbar-color: #665500 rgba(0,0,0,0.3);
 }
+
+/* Rules tabs */
+.rules-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.rules-tab {
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #999;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rules-tab:hover { color: #ccaa00; border-color: #665500; }
+.rules-tab.active { color: #ffe; background: rgba(40,30,0,0.7); border-color: #ccaa00; }
 .rules-content::-webkit-scrollbar {
   width: 8px;
 }

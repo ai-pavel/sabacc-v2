@@ -61,6 +61,7 @@
       rules: "\uD83D\uDCDC 游戏规则",
       rulesTitle: "萨巴克规则",
       difficultyTitle: "选择你的道路",
+      rulesetTitle: "选择你的萨巴克变体",
       mainMenu: "主菜单",
       playAgain: "再玩一次",
     },
@@ -174,6 +175,32 @@
       generatorReplaced: '- 随机生成器把「{g1}」替换为「{g2}」',
       generatorDeckDepleted: "- 生成器: 牌堆耗尽",
       separator: "***********************************************************",
+      traditional:
+        "<h3>目标</h3>" +
+        "<p>Be the first player to exceed the tournament point threshold. " +
+        "You play against CPU opponents at the same table.</p>" +
+        "<h3>牌堆</h3>" +
+        "<p>76 cards: 1-15 in four suits plus 16 face cards (8 names x +/-).</p>" +
+        "<h3>目标</h3><p>Get closest to +/-23. Idiot + 2 + 3 = Idiot's Array (Pure Sabacc).</p>" +
+        "<h3>生成器</h3><p>Picks 2 cards each turn; replaces the first with the second across all hands.</p>" +
+        "<h3>场</h3><p>Protects 1 card from the generator.</p>",
+      spike:
+        "<h3>Corellian Spike</h3>" +
+        "<p>A faster variant with a smaller deck and dice instead of a card generator.</p>" +
+        "<h3>牌堆</h3>" +
+        "<p>42 cards: four suits with values 1-10, plus 2 Idiot cards (value 0).</p>" +
+        "<h3>目标</h3><p>Get as close to <b>0</b> as possible (not 23).</p>" +
+        "<h3>骰子</h3><p>After every turn, two dice are rolled. <b>Doubles</b> shift all cards (random swap). No doubles = nothing happens.</p>" +
+        "<h3>点数</h3><p>Score 0 = Pure Sabacc (+60 pts). Bomb if too far from 0. Otherwise |score| pts.</p>" +
+        "<h3>无场</h3><p>No field protection in this variant.</p>",
+      gungan:
+        "<h3>Otoh Gunga (Gungan Sabacc)</h3>" +
+        "<p>A variant where <b>low scores prevail</b>.</p>" +
+        "<h3>牌堆</h3><p>Standard 76-card deck.</p>" +
+        "<h3>目标</h3><p>Get closest to <b>0</b>. Lowest |score| wins the round. Score 0 = Pure Sabacc.</p>" +
+        "<h3>生成器</h3><p>Still active, same as Traditional.</p>" +
+        "<h3>场</h3><p>Available, same rules as Traditional.</p>" +
+        "<h3>点数</h3><p>Score 0 = Pure Sabacc (+46 pts). All other scores give |score| pts.</p>",
     },
 
     toast: {
@@ -192,7 +219,19 @@
       bomb: " 爆牌 :(",
       pureSabacc: " 纯萨巴克!",
       valid: " {points} 分",
-    },    // ---- Difficulty presets ----
+    },
+
+    // ---- Ruleset variants ----
+    ruleset: {
+      traditional: "传统萨巴克",
+      traditionalDesc: "76张牌，目标±23，生成器，干涉场",
+      spike: "科雷利亚尖刺",
+      spikeDesc: "42张牌，目标0，骰子代替生成器，双牌换牌",
+      gungan: "奥托·贡加",
+      gunganDesc: "标准牌堆，最低分获胜，越接近0越好",
+    },
+
+    // ---- Difficulty presets ----
     difficulty: {
       youngling: "🟢 幼徒",
       younglingDesc: "在绝地圣殿训练 — 1名普通对手，快速游戏",

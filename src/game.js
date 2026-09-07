@@ -18,6 +18,7 @@ const {
   cpuPassThreshold, cpuWantsToDraw, pickOpponents, pickPersonalities,
   swapCardInLocations, generatorSwap, pickGeneratorCards, rollFavorites,
   refreshCpuRaces, setCpuCount, buildSeatOrder, DIFFICULTY_PRESETS,
+  setRuleset, RULESETS, rollDice,
   PURE_SABACC, BOMB, PURE_SABACC_POINTS, BOMB_POINTS,
   EMPTY, CPU_RACES, CPU_PERSONALITIES,
 } = window.Sabacc;
@@ -103,6 +104,7 @@ let roundCount = 0;
 let pureSabaccCount = 0;
 let cpuPersonalities = [];
 let currentDifficulty = "knight";
+let currentRulesetKey = "traditional";
 
 // Per-player state. players[0] = human, players[1..NUM_CPUS] = CPUs.
 let players = createPlayers();
@@ -530,6 +532,29 @@ const dealCards = () => {
 };
 
 // -----------------------------------------------------------------------------
+// Ruleset selection (shown before difficulty)
+// -----------------------------------------------------------------------------
+
+const showRuleset = () => {
+  const container = $("rulesetButtons");
+  if (!container) return;
+  container.innerHTML = "";
+  for (const [key, rs] of Object.entries(RULESETS)) {
+    const btn = document.createElement("div");
+    btn.className = "diff-btn";
+    btn.onclick = () => { currentRulesetKey = key; showDifficulty(); };
+    const label = STR.ruleset[key] || key;
+    const desc = STR.ruleset[key + "Desc"] || "";
+    btn.innerHTML =
+      `<div class="diff-name">${label}</div>` +
+      (desc ? `<div class="diff-desc">${desc}</div>` : "");
+    container.appendChild(btn);
+  }
+  if (typeof i18n !== "undefined") i18n.apply();
+  showScreen("rulesetScreen");
+};
+
+// -----------------------------------------------------------------------------
 // Difficulty selection
 // -----------------------------------------------------------------------------
 
@@ -557,6 +582,8 @@ const startWithDifficulty = (key) => {
   const preset = DIFFICULTY_PRESETS[key];
   if (!preset) return;
   currentDifficulty = key;
+  // Apply ruleset
+  setRuleset(currentRulesetKey);
   // Apply CPU count
   setCpuCount(preset.cpus);
   NUM_CPUS = preset.cpus;
@@ -742,6 +769,39 @@ const setupDragAndDrop = () => {
 // -----------------------------------------------------------------------------
 
 const generate = () => {
+  if (currentRulesetKey === "spike") {
+    // Corellian Spike: roll 2 dice, doubles = all cards shift (swap random card)
+    const { d1, d2, doubles } = rollDice();
+    $("genCard1").value = String(d1);
+    $("genCard2").value = String(d2);
+    if (!doubles) return;
+    SFX.swap();
+    logMessage(STR.log.generatorReplaced.replace("{g1}", String(d1)).replace("{g2}", String(d2)));
+    // On doubles: swap a random live card with another
+    const picked = pickGeneratorCards(deck);
+    if (!picked) return;
+    const { g1, g2 } = picked;
+    const hands = {};
+    for (let i = 0; i < NUM_PLAYERS; i++) hands[`p${i}`] = { locs: players[i].cardFiles, cards: players[i].cards };
+    const result = generatorSwap(hands, g1, g2);
+    for (let i = 0; i < NUM_PLAYERS; i++) {
+      const r = result[`p${i}`]; const seatIdx = SEAT_ORDER.indexOf(i);
+      if (r.changed) {
+        for (let s = 0; s < r.locs.length; s++) {
+          if (r.locs[s] === g2) {
+            const imgEl = $(cardId(seatIdx, s));
+            setImg(cardId(seatIdx, s), `assets/cards/${g2}`);
+            setAlt(cardId(seatIdx, s), compile(g2));
+            if (imgEl) { imgEl.classList.remove("card-swap"); void imgEl.offsetWidth; imgEl.classList.add("card-swap"); }
+          }
+        }
+      }
+      players[i].cardFiles = r.locs; players[i].cards = r.cards;
+    }
+    updateScore();
+    return;
+  }
+  // Traditional / Gungan: standard generator
   const picked = pickGeneratorCards(deck);
   if (!picked) { logMessage(STR.log.generatorDeckDepleted); return; }
   const { g1, g2 } = picked;
@@ -1055,11 +1115,7 @@ const resetGameState = () => {
 
 const playAgain = () => {
   resetGameState();
-  const nameInput = $("nameInput");
-  if (nameInput && nameInput.value) players[0].name = nameInput.value;
-  else players[0].name = loadPlayerName() || STR.defaultPlayerName;
-  skipIntro();
-  gamer();
+  showScreen("startPanel");
 };
 
 // -----------------------------------------------------------------------------
@@ -1108,7 +1164,26 @@ const resetHallOfFame = () => { if (confirm(STR.hof.resetConfirm)) { saveHallOfF
 // Rules + Credits screens
 // -----------------------------------------------------------------------------
 
-const showRules = () => { const c = $("rulesContent"); if (c) c.innerHTML = STR.rules.html; showScreen("rulesScreen"); };
+let currentRulesTab = "traditional";
+
+const showRules = () => {
+  switchRulesTab("traditional");
+  showScreen("rulesScreen");
+};
+
+const switchRulesTab = (key) => {
+  currentRulesTab = key;
+  // Update tab buttons
+  document.querySelectorAll(".rules-tab").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  const tabs = { traditional: 0, spike: 1, gungan: 2 };
+  const tabBtns = document.querySelectorAll(".rules-tab");
+  if (tabBtns[tabs[key]]) tabBtns[tabs[key]].classList.add("active");
+  // Load rules content
+  const c = $("rulesContent");
+  if (c) c.innerHTML = STR.rules[key] || STR.rules.html;
+};
 
 const showCredits = () => {
   const scroll = $("creditsScroll");
@@ -1186,6 +1261,8 @@ if (document.readyState === "loading") {
 window.gamer = gamer;
 window.showDifficulty = showDifficulty;
 window.startWithDifficulty = startWithDifficulty;
+window.showRuleset = showRuleset;
+window.switchRulesTab = switchRulesTab;
 window.turn = turn;
 window.pass = pass;
 window.showScreen = showScreen;

@@ -2,28 +2,76 @@
 // Sabacc Tournament — pure game rules (no DOM access)
 //
 // All game logic that doesn't touch the DOM lives here. Exported on
-// window.Sabacc for the test harness and ui.js.
+// window.Sabacc for the test harness and game.js.
+//
+// Supports 3 rulesets: traditional, spike (Corellian Spike), gungan (Otoh Gunga).
+// Active ruleset is set via setRuleset() and affects deck, scoring, and
+// evaluation logic.
 // =============================================================================
+
+// -----------------------------------------------------------------------------
+// Rulesets
+// -----------------------------------------------------------------------------
+
+const RULESETS = {
+  traditional: {
+    key: "traditional",
+    pureSabacc: 23,
+    bombPoints: -24,
+    pureSabaccPoints: 46,
+    useGenerator: true,
+    useDice: false,
+    lowestWins: false,
+    deckType: "standard",
+  },
+  spike: {
+    key: "spike",
+    pureSabacc: 0,
+    bombPoints: -30,
+    pureSabaccPoints: 60,
+    useGenerator: false,
+    useDice: true,
+    lowestWins: false,
+    deckType: "spike",
+  },
+  gungan: {
+    key: "gungan",
+    pureSabacc: 0,
+    bombPoints: -24,
+    pureSabaccPoints: 46,
+    useGenerator: true,
+    useDice: false,
+    lowestWins: true,
+    deckType: "standard",
+  },
+};
+
+let currentRuleset = RULESETS.traditional;
+let PURE_SABACC = currentRuleset.pureSabacc;
+let BOMB = currentRuleset.bombPoints;
+let PURE_SABACC_POINTS = currentRuleset.pureSabaccPoints;
+let BOMB_POINTS = currentRuleset.bombPoints;
+
+const setRuleset = (key) => {
+  const rs = RULESETS[key];
+  if (!rs) return;
+  currentRuleset = rs;
+  PURE_SABACC = rs.pureSabacc;
+  BOMB = rs.bombPoints;
+  PURE_SABACC_POINTS = rs.pureSabaccPoints;
+  BOMB_POINTS = rs.bombPoints;
+};
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 
-const PURE_SABACC = 23;
-const BOMB = -24;
-const PURE_SABACC_POINTS = 46;
-const BOMB_POINTS = -24;
 let WIN_THRESHOLD = 500;
 const EMPTY = 20;
 
-// CPU count — configurable via Settings (1-4). Default 4.
 let NUM_CPUS = 4;
 let NUM_PLAYERS = NUM_CPUS + 1;
 
-// SUITS is read live from STR.suits in compile() for locale-awareness.
-
-// Face cards: code prefix -> value. Names are read live from STR.faceCards
-// in compile() so they translate with locale changes.
 const FACE_CARDS = {
   i: { value: 0 },
   q: { value: 2 },
@@ -33,6 +81,11 @@ const FACE_CARDS = {
   c: { value: 13 },
   a: { value: 15 },
   s: { value: 17 },
+};
+
+// Corellian Spike face cards: only Idiot (0), plus positive/negative 1-10
+const SPIKE_FACE_CARDS = {
+  i: { value: 0 },
 };
 
 const CPU_PERSONALITIES = ["normal", "bluffer", "folder", "risktaker"];
@@ -62,6 +115,17 @@ const buildSeatOrder = () => {
 // -----------------------------------------------------------------------------
 
 const buildDeck = () => {
+  if (currentRuleset.deckType === "spike") {
+    // Corellian Spike: 4 suits, values 1-10, plus 2 Idiot cards
+    const deck = [];
+    for (let v = 1; v <= 10; v++) {
+      for (const s of "cfps") deck.push(`${v}${s}.jpg`);
+    }
+    deck.push("i1.jpg");
+    deck.push("i2.jpg");
+    return deck;
+  }
+  // Standard deck: 4 suits 1-15 + 16 face cards
   const deck = [];
   for (let v = 1; v <= 15; v++) {
     for (const s of "cfps") deck.push(`${v}${s}.jpg`);
@@ -78,7 +142,10 @@ const convert = (card) => {
   if (m) return Number(m[1]);
   const fm = card.match(/^([iqebdcas])([12])\.jpg$/);
   if (fm) {
-    const { value } = FACE_CARDS[fm[1]];
+    const faceMap = currentRuleset.deckType === "spike" ? SPIKE_FACE_CARDS : FACE_CARDS;
+    const fc = faceMap[fm[1]];
+    if (!fc) return 0;
+    const { value } = fc;
     if (value === 0) return 0;
     return fm[2] === "2" ? -value : value;
   }
@@ -90,6 +157,7 @@ const compile = (card) => {
   if (m) return `${m[1]} of ${STR.suits[m[2]]}`;
   const fm = card.match(/^([iqebdcas])([12])\.jpg$/);
   if (fm) {
+    if (currentRuleset.deckType === "spike" && fm[1] !== "i") return STR.emptyCard;
     const name = STR.faceCards[fm[1]];
     const sign = fm[2] === "2" ? STR.negativeSuffix : STR.positiveSuffix;
     return fm[1] === "i" ? STR.faceCards.i : `${name} ${sign}`;
@@ -127,9 +195,20 @@ const isIdiotsArray = (cards, fieldValue) => {
 };
 
 const evaluateRound = (score, { idiotsArray = false } = {}) => {
+  // Pure sabacc (or Idiot's Array in traditional)
   if (idiotsArray || score === PURE_SABACC || score === -PURE_SABACC) {
     return { roundPoints: 24, tournamentDelta: PURE_SABACC_POINTS };
   }
+
+  if (currentRuleset.lowestWins) {
+    // Gungan: lowest |score| wins, 0 is pure sabacc (handled above)
+    // Any score is valid, closer to 0 = more points
+    const abs = Math.abs(score);
+    // Score of 0 already handled as pure sabacc above
+    return { roundPoints: abs, tournamentDelta: abs };
+  }
+
+  // Traditional / Spike: bomb if 0 or beyond ±PURE_SABACC
   if (score === 0 || score > PURE_SABACC || score < -PURE_SABACC) {
     return { roundPoints: BOMB_POINTS, tournamentDelta: BOMB_POINTS };
   }
@@ -191,7 +270,6 @@ const pickPersonalities = (pool) => {
   return arr;
 };
 
-// Difficulty presets
 const DIFFICULTY_PRESETS = {
   youngling:    { cpus: 1, personalityPool: ["normal"],              winThreshold: 100,  key: "youngling" },
   padawan:      { cpus: 2, personalityPool: ["normal", "folder"],   winThreshold: 500,  key: "padawan" },
@@ -202,20 +280,22 @@ const DIFFICULTY_PRESETS = {
 
 const cpuWantsToDraw = (score, threshold, personality = "normal") => {
   const abs = Math.abs(score);
+  if (currentRuleset.lowestWins) {
+    // Gungan: want to get closer to 0, so draw if score is high
+    if (score === 0) return false;
+    return abs > threshold;
+  }
   if (score === 0 || abs >= threshold) {
-    // Folder: passes even earlier (threshold - 2)
     if (personality === "folder" && abs >= threshold - 2) return false;
     return false;
   }
-  // Risk-taker: draws past threshold up to threshold + 2
   if (personality === "risktaker" && abs < threshold + 2) return true;
-  // Bluffer: normal draw logic but will never pass at exactly threshold - 1
   if (personality === "bluffer" && abs === threshold - 1) return true;
   return true;
 };
 
 // -----------------------------------------------------------------------------
-// Generator
+// Generator / Dice
 // -----------------------------------------------------------------------------
 
 const swapCardInLocations = (locs, cards, oldCard, newCard, newValue) => {
@@ -261,6 +341,13 @@ const pickGeneratorCards = (deck) => {
   return { g1, g2 };
 };
 
+// Corellian Spike: roll 2 dice, doubles = all cards shift (reshuffle)
+const rollDice = () => {
+  const d1 = 1 + Math.floor(Math.random() * 6);
+  const d2 = 1 + Math.floor(Math.random() * 6);
+  return { d1, d2, doubles: d1 === d2 };
+};
+
 const rollFavorites = () => {
   const favDeck = buildDeck();
   const favs = [];
@@ -278,8 +365,9 @@ if (typeof window !== "undefined") {
     scoreHand, isIdiotsArray, evaluateRound, applyLeaderBonus, decideWinner,
     cpuPassThreshold, cpuWantsToDraw, pickOpponents, pickPersonalities,
     swapCardInLocations, randomGeneratorStep, generatorSwap,
-    pickGeneratorCards, rollFavorites,
-    refreshCpuRaces, setCpuCount, buildSeatOrder, DIFFICULTY_PRESETS,
+    pickGeneratorCards, rollFavorites, rollDice,
+    refreshCpuRaces, setCpuCount, buildSeatOrder,
+    setRuleset, RULESETS, DIFFICULTY_PRESETS,
     PURE_SABACC, BOMB, PURE_SABACC_POINTS, BOMB_POINTS,
     WIN_THRESHOLD, EMPTY, CPU_RACES, CPU_PERSONALITIES,
     NUM_CPUS, NUM_PLAYERS,

@@ -35,12 +35,25 @@
 <div id="startPanel" class="screen menu-screen">
   <div class="menu-buttons">
     <input type="button" class="menu-btn" id="continueBtn" onClick="continueGame()" value="Continue" data-i18n="ui.continue" style="display:none">
-    <input type="button" class="menu-btn" onClick="showDifficulty()" value="Start Game" data-i18n="ui.startGame">
+    <input type="button" class="menu-btn" onClick="showRuleset()" value="Start Game" data-i18n="ui.startGame">
     <input type="button" class="menu-btn" onClick="showScreen('settingsScreen')" value="Settings" data-i18n="ui.settings">
     <input type="button" class="menu-btn" onClick="showRules()" value="Rules" data-i18n="ui.rules">
     <input type="button" class="menu-btn" onClick="showHallOfFame()" value="Hall of Fame" data-i18n="ui.hallOfFame">
     <input type="button" class="menu-btn" onClick="showCredits()" value="Credits" data-i18n="ui.credits">
     <input type="button" class="menu-btn" onClick="exitGame()" value="Exit Game" data-i18n="ui.exitGame">
+  </div>
+</div>
+
+<!-- ============ Ruleset selection screen ============ -->
+<div id="rulesetScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.rulesetTitle">Choose Your Sabacc Variant</p>
+    <div class="sub-panel">
+      <div class="difficulty-buttons" id="rulesetButtons"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
   </div>
 </div>
 
@@ -117,8 +130,13 @@
 <!-- ============ Rules screen ============ -->
 <div id="rulesScreen" class="screen sub-screen" style="display:none">
   <div class="screen-inner">
-    <p class="title" data-i18n="ui.rulesTitle">Rules</p>
+    <p class="title" data-i18n="ui.rulesTitle">Game Rules</p>
     <div class="sub-panel">
+      <div class="rules-tabs" id="rulesTabs">
+        <button class="rules-tab active" onclick="switchRulesTab('traditional')" data-i18n="ruleset.traditional">Traditional</button>
+        <button class="rules-tab" onclick="switchRulesTab('spike')" data-i18n="ruleset.spike">Corellian Spike</button>
+        <button class="rules-tab" onclick="switchRulesTab('gungan')" data-i18n="ruleset.gungan">Otoh Gunga</button>
+      </div>
       <div id="rulesContent" class="rules-content"></div>
     </div>
     <div class="form-row">

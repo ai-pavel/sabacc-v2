@@ -39,6 +39,9 @@ const {
   generatorSwap,
   pickGeneratorCards,
   rollFavorites,
+  setRuleset,
+  RULESETS,
+  rollDice,
 } = globalThis.window.Sabacc;
 
 // ---------------------------------------------------------------------------

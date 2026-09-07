@@ -61,6 +61,7 @@
       rules: "\uD83D\uDCDC Spielregeln",
       rulesTitle: "Sabacc-Regeln",
       difficultyTitle: "Waehle deinen Weg",
+      rulesetTitle: "Waehle deine Sabacc-Variante",
       mainMenu: "Hauptmenü",
       playAgain: "Nochmal spielen",
     },
@@ -176,6 +177,32 @@
       generatorReplaced: '- Generator ersetzte „{g1}“ durch „{g2}“',
       generatorDeckDepleted: "- Generator: Stapel leer",
       separator: "***********************************************************",
+      traditional:
+        "<h3>Ziel</h3>" +
+        "<p>Be the first player to exceed the tournament point threshold. " +
+        "You play against CPU opponents at the same table.</p>" +
+        "<h3>Deck</h3>" +
+        "<p>76 cards: 1-15 in four suits plus 16 face cards (8 names x +/-).</p>" +
+        "<h3>Ziel</h3><p>Get closest to +/-23. Idiot + 2 + 3 = Idiot's Array (Pure Sabacc).</p>" +
+        "<h3>Generator</h3><p>Picks 2 cards each turn; replaces the first with the second across all hands.</p>" +
+        "<h3>Feld</h3><p>Protects 1 card from the generator.</p>",
+      spike:
+        "<h3>Corellian Spike</h3>" +
+        "<p>A faster variant with a smaller deck and dice instead of a card generator.</p>" +
+        "<h3>Deck</h3>" +
+        "<p>42 cards: four suits with values 1-10, plus 2 Idiot cards (value 0).</p>" +
+        "<h3>Ziel</h3><p>Get as close to <b>0</b> as possible (not 23).</p>" +
+        "<h3>Wuerfel</h3><p>After every turn, two dice are rolled. <b>Doubles</b> shift all cards (random swap). No doubles = nothing happens.</p>" +
+        "<h3>Punkte</h3><p>Score 0 = Pure Sabacc (+60 pts). Bomb if too far from 0. Otherwise |score| pts.</p>" +
+        "<h3>Ohne Feld</h3><p>No field protection in this variant.</p>",
+      gungan:
+        "<h3>Otoh Gunga (Gungan Sabacc)</h3>" +
+        "<p>A variant where <b>low scores prevail</b>.</p>" +
+        "<h3>Deck</h3><p>Standard 76-card deck.</p>" +
+        "<h3>Ziel</h3><p>Get closest to <b>0</b>. Lowest |score| wins the round. Score 0 = Pure Sabacc.</p>" +
+        "<h3>Generator</h3><p>Still active, same as Traditional.</p>" +
+        "<h3>Feld</h3><p>Available, same rules as Traditional.</p>" +
+        "<h3>Punkte</h3><p>Score 0 = Pure Sabacc (+46 pts). All other scores give |score| pts.</p>",
     },
 
     toast: {
@@ -194,7 +221,19 @@
       bomb: " rausgeflogen :(",
       pureSabacc: " Reines Sabacc!",
       valid: " {points} Pkt.",
-    },    // ---- Difficulty presets ----
+    },
+
+    // ---- Ruleset variants ----
+    ruleset: {
+      traditional: "Traditioneller Sabacc",
+      traditionalDesc: "76 Karten, Ziel +/-23, Generator, Interferenzfeld",
+      spike: "Corellian Spike",
+      spikeDesc: "42 Karten, Ziel 0, Wuerfel statt Generator, Doppel tauschen Karten",
+      gungan: "Otoh Gunga",
+      gunganDesc: "Standarddeck, niedrigster Score gewinnt, am naechsten an 0",
+    },
+
+    // ---- Difficulty presets ----
     difficulty: {
       youngling: "🟢 Juengling",
       younglingDesc: "Training im Jedi-Tempel - 1 normaler Gegner, schnelle Spiele",
