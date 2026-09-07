@@ -60,6 +60,7 @@
       sfxOff: "关",
       rules: "\uD83D\uDCDC 游戏规则",
       rulesTitle: "萨巴克规则",
+      difficultyTitle: "选择你的道路",
       mainMenu: "主菜单",
       playAgain: "再玩一次",
     },
@@ -87,6 +88,7 @@
       score: "分数",
       rounds: "回合",
       pureSabaccs: "纯萨巴克",
+      difficulty: "难度",
       time: "游戏时长",
       empty: "暂无记录 — 去玩一局吧!",
       resetConfirm: "确定要清除名人堂吗?",
@@ -190,7 +192,28 @@
       bomb: " 爆牌 :(",
       pureSabacc: " 纯萨巴克!",
       valid: " {points} 分",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 幼徒",
+      younglingDesc: "在绝地圣殿训练 — 1名普通对手，快速游戏",
+      padawan: "🔵 学徒",
+      padawanDesc: "学习原力之道 — 2名谨慎对手",
+      knight: "🟡 骑士",
+      knightDesc: "绝地骑士不追求这些 — 3名混合对手",
+      sithlord: "🔴 西斯领主",
+      sithlordDesc: "原力的黑暗面 — 4名激进对手，长期战斗",
+      grandmaster: "⚔️ 大宗师",
+      grandmasterDesc: "大小不重要 — 4名鲁莊对手，马拉松",
     },
+
+
+    roundSummary: {
+      title: "回合结果",
+      continue: "继续",
+      hand: "手牌",
+      result: "结果",
+    },
+
 
     alt: {
       yourField: "你的干涉场",

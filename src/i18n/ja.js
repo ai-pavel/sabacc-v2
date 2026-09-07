@@ -60,6 +60,7 @@
       sfxOff: "オフ",
       rules: "\uD83D\uDCDC ゲームルール",
       rulesTitle: "サバックのルール",
+      difficultyTitle: "道を選べ",
       mainMenu: "メインメニュー",
       playAgain: "もう一度プレイ",
     },
@@ -87,6 +88,7 @@
       score: "スコア",
       rounds: "ラウンド",
       pureSabaccs: "純サバック",
+      difficulty: "難易度",
       time: "プレイ時間",
       empty: "記録なし — プレイしましょう!",
       resetConfirm: "殿堂をリセットしますか?",
@@ -190,7 +192,28 @@
       bomb: " バンク :(",
       pureSabacc: " 純サバック!",
       valid: " {points} 点",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 ヤングリング",
+      younglingDesc: "ジェダイ寺院での訓練 — 1人の通常相手、短いゲーム",
+      padawan: "🔵 パダワン",
+      padawanDesc: "フォースの道を学ぶ — 2人の慎重な相手",
+      knight: "🟡 ナイト",
+      knightDesc: "ジェダイ・ナイトはこれらを求めない — 3人の様々な相手",
+      sithlord: "🔴 シス・ロード",
+      sithlordDesc: "フォースの暗黒面 — 4人の好戦的な相手、長距離",
+      grandmaster: "⚔️ グランド・マスター",
+      grandmasterDesc: "大小は問題ではない — 4人の無謀な相手、マラソン",
     },
+
+
+    roundSummary: {
+      title: "ラウンド結果",
+      continue: "次へ",
+      hand: "手札",
+      result: "結果",
+    },
+
 
     alt: {
       yourField: "あなたの干渉フィールド",

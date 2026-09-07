@@ -2,17 +2,18 @@
 
 Major changes since the 2005 original.
 
-## Gameplay (9)
+## Gameplay (10)
 
-1. **Configurable CPU count** — 1–4 opponents (was fixed 2), human seated in the middle
-2. **CPU personalities** — bluffer / folder / risk-taker / normal, randomly assigned per CPU
-3. **Configurable win threshold** — 100 / 500 / 1000 / 2500 / 5000 (was fixed 500)
+1. **Difficulty presets** — 5 Star Wars-themed levels (Youngling / Padawan / Knight / Sith Lord / Grand Master) with varying CPU count, personalities, and win threshold
+2. **Configurable CPU count** — 1–4 opponents (was fixed 2), human seated in the middle
+3. **CPU personalities** — bluffer / folder / risk-taker / normal, randomly assigned per CPU
 4. **Tournament standings panel** — live scoreboard under avatars (was text in event log)
 5. **Win / Lose / Tie screen** — dedicated end screen with stats, replacing toast + page reload
 6. **Pure Sabacc counter** — tracked across the tournament, shown on end screen and Hall of Fame
 7. **Idiot's Array feedback** — celebratory toast + sound when the player assembles Idiot + 2 + 3
 8. **"Draw Card" button** — renamed from "Next Turn" for clarity
 9. **Esc key** — returns to main menu mid-game, auto-saves state
+10. **Round summary overlay** — shows all hands/scores before advancing to next round
 
 ## UI (9)
 

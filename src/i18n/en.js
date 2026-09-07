@@ -63,6 +63,7 @@
       sfxOff: "Off",
       rules: "\uD83D\uDCDC Game Rules",
       rulesTitle: "Rules of Sabacc",
+      difficultyTitle: "Choose Your Path",
       mainMenu: "Main Menu",
       playAgain: "Play Again",
     },
@@ -91,6 +92,7 @@
       score: "Score",
       rounds: "Rounds",
       pureSabaccs: "Pure Sabaccs",
+      difficulty: "Difficulty",
       time: "Game Time",
       empty: "No records yet — play a game!",
       resetConfirm: "Are you sure you want to reset the Hall of Fame?",
@@ -207,7 +209,29 @@
       bomb: " bombed :(",
       pureSabacc: " Pure Sabacc!",
       valid: " scored {points} pts.",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 Youngling",
+      younglingDesc: "Training at the Jedi Temple - 1 normal opponent, quick games",
+      padawan: "🔵 Padawan",
+      padawanDesc: "Learning the ways of the Force - 2 cautious opponents",
+      knight: "🟡 Knight",
+      knightDesc: "A Jedi Knight seeks not these things - 3 mixed opponents",
+      sithlord: "🔴 Sith Lord",
+      sithlordDesc: "The dark side of the Force - 4 aggressive opponents, long run",
+      grandmaster: "⚔️ Grand Master",
+      grandmasterDesc: "Size matters not - 4 reckless opponents, marathon",
     },
+
+
+    // ---- Round summary ----
+    roundSummary: {
+      title: "Round Results",
+      continue: "Continue",
+      hand: "Hand",
+      result: "Result",
+    },
+
 
     // ---- Image alt-text -----------------------------------------------
     alt: {

@@ -60,6 +60,7 @@
       sfxOff: "Wył.",
       rules: "\uD83D\uDCDC Zasady gry",
       rulesTitle: "Zasady Sabacca",
+      difficultyTitle: "Wybierz swoja sciezke",
       mainMenu: "Menu główne",
       playAgain: "Zagraj ponownie",
     },
@@ -87,6 +88,7 @@
       score: "Punkty",
       rounds: "Rundy",
       pureSabaccs: "Czyste Sabacc",
+      difficulty: "Poziom",
       time: "Czas",
       empty: "Brak wyników — zagraj!",
       resetConfirm: "Wyczyścić galerię sław?",
@@ -192,7 +194,28 @@
       bomb: " wypadł :(",
       pureSabacc: " Czyste Sabacc!",
       valid: " {points} pkt.",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 Mlodzian",
+      younglingDesc: "Trening w Swiatyni Jedi - 1 zwykly przeciwnik, krotkie gry",
+      padawan: "🔵 Padawan",
+      padawanDesc: "Poznawanie drog Mocy - 2 ostroznych przeciwnikow",
+      knight: "🟡 Rycerz",
+      knightDesc: "Rycerz Jedi nie szuka tych rzeczy - 3 mieszanych przeciwnikow",
+      sithlord: "🔴 Lord Sith",
+      sithlordDesc: "Ciemna strona Mocy - 4 agresywnych przeciwnikow, dluga gra",
+      grandmaster: "⚔️ Wielki Mistrz",
+      grandmasterDesc: "Wielkosc nie ma znaczenia - 4 nieostroznnych przeciwnikow, maraton",
     },
+
+
+    roundSummary: {
+      title: "Wyniki rundy",
+      continue: "Dalej",
+      hand: "Ręka",
+      result: "Wynik",
+    },
+
 
     alt: {
       yourField: "Twoje pole interferencji",

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Sabacc of Coruscant</title>
+<title>Sabacc Tournament Anniversary Remaster</title>
 <link href="src/style.css" rel="stylesheet">
 <!-- i18n: loader + locales + init must load before game.js -->
 <script src="src/i18n/loader.js"></script>
@@ -35,12 +35,25 @@
 <div id="startPanel" class="screen menu-screen">
   <div class="menu-buttons">
     <input type="button" class="menu-btn" id="continueBtn" onClick="continueGame()" value="Continue" data-i18n="ui.continue" style="display:none">
-    <input type="button" class="menu-btn" onClick="gamer()" value="Start Game" data-i18n="ui.startGame">
+    <input type="button" class="menu-btn" onClick="showDifficulty()" value="Start Game" data-i18n="ui.startGame">
     <input type="button" class="menu-btn" onClick="showScreen('settingsScreen')" value="Settings" data-i18n="ui.settings">
     <input type="button" class="menu-btn" onClick="showRules()" value="Rules" data-i18n="ui.rules">
     <input type="button" class="menu-btn" onClick="showHallOfFame()" value="Hall of Fame" data-i18n="ui.hallOfFame">
     <input type="button" class="menu-btn" onClick="showCredits()" value="Credits" data-i18n="ui.credits">
     <input type="button" class="menu-btn" onClick="exitGame()" value="Exit Game" data-i18n="ui.exitGame">
+  </div>
+</div>
+
+<!-- ============ Difficulty selection screen ============ -->
+<div id="difficultyScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.difficultyTitle">Choose Your Path</p>
+    <div class="sub-panel">
+      <div class="difficulty-buttons" id="difficultyButtons"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
   </div>
 </div>
 
@@ -50,8 +63,19 @@
     <p class="title" data-i18n="ui.settingsTitle">Settings</p>
     <div class="sub-panel">
       <div class="form-row">
+        <span class="label" data-i18n="ui.language">Language:</span>
+        <select id="langSelect" class="formControl"></select>
+      </div>
+      <div class="form-row">
         <span class="label" data-i18n="ui.yourName">Your name:</span>
         <input type="text" class="formControl name-input" id="nameInput" maxlength="19" placeholder="Player" data-i18n-ph="defaultPlayerName">
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.sfxLabel">Sound effects?</span>
+        <select id="sfxToggle" class="formControl" onChange="setSfx(this.value)">
+          <option value="on" data-i18n="ui.sfxOn">On</option>
+          <option value="off" data-i18n="ui.sfxOff">Off</option>
+        </select>
       </div>
       <div class="form-row">
         <span class="label" data-i18n="ui.enableMusic">Enable music?</span>
@@ -63,36 +87,6 @@
       <div class="form-row">
         <span class="label" data-i18n="ui.musicVolume">Music volume:</span>
         <input type="range" id="musicVolume" class="formControl" min="0" max="100" value="50" onChange="setMusicVolume(this.value)">
-      </div>
-      <div class="form-row">
-        <span class="label" data-i18n="ui.sfxLabel">Sound effects?</span>
-        <select id="sfxToggle" class="formControl" onChange="setSfx(this.value)">
-          <option value="on" data-i18n="ui.sfxOn">On</option>
-          <option value="off" data-i18n="ui.sfxOff">Off</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <span class="label" data-i18n="ui.winThreshold">Points to win:</span>
-        <select id="winThresholdSelect" class="formControl" onChange="setWinThreshold(this.value)">
-          <option value="100">100</option>
-          <option value="500">500</option>
-          <option value="1000">1000</option>
-          <option value="2500">2500</option>
-          <option value="5000">5000</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <span class="label" data-i18n="ui.cpuCount">CPU opponents:</span>
-        <select id="cpuCountSelect" class="formControl" onChange="setCpuCountSetting(this.value)">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <span class="label" data-i18n="ui.language">Language:</span>
-        <select id="langSelect" class="formControl"></select>
       </div>
       <div class="form-row">
         <input type="button" class="formControl" onClick="resetHallOfFame()" value="Reset Hall of Fame" data-i18n="ui.resetHoF">
@@ -144,6 +138,17 @@
   <audio loop id="creditsAudio">
     <source src="assets/audio/credits.mp3" type="audio/mpeg">
   </audio>
+</div>
+
+<!-- ============ Round summary overlay ============ -->
+<div id="roundSummary" class="round-summary-overlay" style="display:none">
+  <div class="round-summary-panel">
+    <p class="round-summary-title" data-i18n="roundSummary.title">Round Results</p>
+    <div id="roundSummaryTable"></div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="continueNextRound()" value="Continue" data-i18n="roundSummary.continue">
+    </div>
+  </div>
 </div>
 
 <!-- ============ Win / Lose / Tie screens ============ -->

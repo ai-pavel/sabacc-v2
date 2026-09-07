@@ -60,6 +60,7 @@
       sfxOff: "Aus",
       rules: "\uD83D\uDCDC Spielregeln",
       rulesTitle: "Sabacc-Regeln",
+      difficultyTitle: "Waehle deinen Weg",
       mainMenu: "Hauptmenü",
       playAgain: "Nochmal spielen",
     },
@@ -87,6 +88,7 @@
       score: "Punkte",
       rounds: "Runden",
       pureSabaccs: "Reine Sabaccs",
+      difficulty: "Schwierigkeit",
       time: "Dauer",
       empty: "Noch keine Einträge — spiele eine Partie!",
       resetConfirm: "Ruhmeshalle wirklich zurücksetzen?",
@@ -192,7 +194,28 @@
       bomb: " rausgeflogen :(",
       pureSabacc: " Reines Sabacc!",
       valid: " {points} Pkt.",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 Juengling",
+      younglingDesc: "Training im Jedi-Tempel - 1 normaler Gegner, schnelle Spiele",
+      padawan: "🔵 Padawan",
+      padawanDesc: "Die Wege der Macht erlernen - 2 vorsichtige Gegner",
+      knight: "🟡 Ritter",
+      knightDesc: "Ein Jedi-Ritter sucht nicht nach diesen Dingen - 3 gemischte Gegner",
+      sithlord: "🔴 Sith-Lord",
+      sithlordDesc: "Die dunkle Seite der Macht - 4 aggressive Gegner, langer Lauf",
+      grandmaster: "⚔️ Grossmeister",
+      grandmasterDesc: "Groesse spielt keine Rolle - 4 ruecksichtslose Gegner, Marathon",
     },
+
+
+    roundSummary: {
+      title: "Rundenergebnisse",
+      continue: "Weiter",
+      hand: "Hand",
+      result: "Ergebnis",
+    },
+
 
     alt: {
       yourField: "Dein Interferenzfeld",

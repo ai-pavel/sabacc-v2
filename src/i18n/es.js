@@ -60,6 +60,7 @@
       sfxOff: "No",
       rules: "\uD83D\uDCDC Reglas del juego",
       rulesTitle: "Reglas del Sabacc",
+      difficultyTitle: "Elige tu camino",
       mainMenu: "Menú principal",
       playAgain: "Jugar de nuevo",
     },
@@ -87,6 +88,7 @@
       score: "Puntos",
       rounds: "Rondas",
       pureSabaccs: "Sabacc puro",
+      difficulty: "Dificultad",
       time: "Tiempo",
       empty: "Sin registros — ¡juega una partida!",
       resetConfirm: "¿Borrar el Salón de la Fama?",
@@ -192,7 +194,28 @@
       bomb: " bombado :(",
       pureSabacc: " ¡Sabacc puro!",
       valid: " {points} pts.",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 Joven",
+      younglingDesc: "Entrenamiento en el Templo Jedi - 1 oponente normal, partidas rapidas",
+      padawan: "🔵 Padawan",
+      padawanDesc: "Aprendiendo los caminos de la Fuerza - 2 oponentes cautelosos",
+      knight: "🟡 Caballero",
+      knightDesc: "Un Caballero Jedi no busca estas cosas - 3 oponentes variados",
+      sithlord: "🔴 Lord Sith",
+      sithlordDesc: "El lado oscuro de la Fuerza - 4 oponentes agresivos",
+      grandmaster: "⚔️ Gran Maestro",
+      grandmasterDesc: "El tamano no importa - 4 oponentes temerarios, maraton",
     },
+
+
+    roundSummary: {
+      title: "Resultados de la ronda",
+      continue: "Continuar",
+      hand: "Mano",
+      result: "Resultado",
+    },
+
 
     alt: {
       yourField: "Tu campo de interferencia",

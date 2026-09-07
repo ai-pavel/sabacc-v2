@@ -17,7 +17,7 @@ const {
   scoreHand, isIdiotsArray, evaluateRound, applyLeaderBonus, decideWinner,
   cpuPassThreshold, cpuWantsToDraw, pickOpponents, pickPersonalities,
   swapCardInLocations, generatorSwap, pickGeneratorCards, rollFavorites,
-  refreshCpuRaces, setCpuCount, buildSeatOrder,
+  refreshCpuRaces, setCpuCount, buildSeatOrder, DIFFICULTY_PRESETS,
   PURE_SABACC, BOMB, PURE_SABACC_POINTS, BOMB_POINTS,
   EMPTY, CPU_RACES, CPU_PERSONALITIES,
 } = window.Sabacc;
@@ -102,6 +102,7 @@ let gameStartTime = 0;
 let roundCount = 0;
 let pureSabaccCount = 0;
 let cpuPersonalities = [];
+let currentDifficulty = "knight";
 
 // Per-player state. players[0] = human, players[1..NUM_CPUS] = CPUs.
 let players = createPlayers();
@@ -335,8 +336,10 @@ const scoreRound = () => {
 };
 
 // -----------------------------------------------------------------------------
-// Round summary card
+// Round summary overlay
 // -----------------------------------------------------------------------------
+
+let pendingRoundEnd = null;
 
 const showRoundSummary = () => {
   const rows = SEAT_ORDER.map((pIdx) => {
@@ -348,10 +351,25 @@ const showRoundSummary = () => {
     return `<tr><td>${p.name}</td><td>${handCards || "—"}</td><td>${p.score}</td><td>${msg(p.score)}</td></tr>`;
   }).join("");
 
-  showToast(
-    `<table class="round-summary"><tr><th>${STR.hof.name}</th><th>${STR.roundSummary.hand || "Hand"}</th><th>${STR.hof.score}</th><th>Result</th></tr>${rows}</table>`,
-    "info",
-  );
+  const container = $("roundSummaryTable");
+  if (container) {
+    container.innerHTML =
+      `<table>` +
+      `<tr><th>${STR.hof.name}</th><th>${STR.roundSummary.hand}</th><th>${STR.hof.score}</th><th>${STR.roundSummary.result}</th></tr>` +
+      rows +
+      `</table>`;
+  }
+  // Apply i18n to the overlay's data-i18n elements
+  if (typeof i18n !== "undefined") i18n.apply();
+  $("roundSummary").style.display = "flex";
+};
+
+const continueNextRound = () => {
+  $("roundSummary").style.display = "none";
+  if (!pendingRoundEnd) return;
+  const { fn, args } = pendingRoundEnd;
+  pendingRoundEnd = null;
+  fn(...(args || []));
 };
 
 // -----------------------------------------------------------------------------
@@ -454,32 +472,31 @@ const pass = () => {
     players[i].score = scoreHand(players[i].cards, players[i].fieldValue);
   }
 
-  // Round summary
-  const summaryList = SEAT_ORDER.map((pIdx) => {
-    const p = players[pIdx];
-    return `${p.name}${msg(p.score)}`;
-  }).join(" | ");
-  showToast(STR.toast.roundOver.replace("{list}", summaryList), "info");
-
-  scoreRound();
-  resetRound();
-
-  const winner = decideWinner(players.map((p) => p.points));
-  if (winner.index < 0) {
-    gamer();
-  } else {
-    if (!winner.tie && winner.index === 0) {
-      recordHallOfFame({
-        name: players[0].name,
-        score: players[0].points,
-        rounds: roundCount,
-        pureSabaccs: pureSabaccCount,
-        time: Date.now() - gameStartTime,
-      });
-    }
-    clearSavedGame();
-    showEndScreen(winner);
-  }
+  // Show round summary overlay, defer round progression to Continue button
+  pendingRoundEnd = {
+    fn: () => {
+      scoreRound();
+      resetRound();
+      const winner = decideWinner(players.map((p) => p.points));
+      if (winner.index < 0) {
+        gamer();
+      } else {
+        if (!winner.tie && winner.index === 0) {
+          recordHallOfFame({
+            name: players[0].name,
+            score: players[0].points,
+            rounds: roundCount,
+            pureSabaccs: pureSabaccCount,
+            time: Date.now() - gameStartTime,
+            difficulty: currentDifficulty,
+          });
+        }
+        clearSavedGame();
+        showEndScreen(winner);
+      }
+    },
+  };
+  showRoundSummary();
 };
 
 // -----------------------------------------------------------------------------
@@ -510,6 +527,48 @@ const dealCards = () => {
   clearLog();
   scrollLog();
   checkBomb();
+};
+
+// -----------------------------------------------------------------------------
+// Difficulty selection
+// -----------------------------------------------------------------------------
+
+const showDifficulty = () => {
+  const container = $("difficultyButtons");
+  if (!container) return;
+  container.innerHTML = "";
+  const presets = Object.entries(DIFFICULTY_PRESETS);
+  for (const [key, preset] of presets) {
+    const btn = document.createElement("div");
+    btn.className = "diff-btn";
+    btn.onclick = () => startWithDifficulty(key);
+    const label = STR.difficulty[key] || key;
+    const desc = STR.difficulty[key + "Desc"] || "";
+    btn.innerHTML =
+      `<div class="diff-name">${label}</div>` +
+      (desc ? `<div class="diff-desc">${desc}</div>` : "");
+    container.appendChild(btn);
+  }
+  if (typeof i18n !== "undefined") i18n.apply();
+  showScreen("difficultyScreen");
+};
+
+const startWithDifficulty = (key) => {
+  const preset = DIFFICULTY_PRESETS[key];
+  if (!preset) return;
+  currentDifficulty = key;
+  // Apply CPU count
+  setCpuCount(preset.cpus);
+  NUM_CPUS = preset.cpus;
+  NUM_PLAYERS = preset.cpus + 1;
+  SEAT_ORDER = buildSeatOrder();
+  players = createPlayers();
+  // Apply win threshold
+  WIN_THRESHOLD = preset.winThreshold;
+  window.Sabacc.WIN_THRESHOLD = preset.winThreshold;
+  // Store personality pool for opps()
+  window._difficultyPool = preset.personalityPool;
+  gamer();
 };
 
 const gamer = () => {
@@ -561,7 +620,7 @@ const resetRound = () => {
 const opps = () => {
   if (opponentsRolled) return;
   const races = pickOpponents();
-  cpuPersonalities = pickPersonalities();
+  cpuPersonalities = pickPersonalities(window._difficultyPool);
   for (let i = 1; i <= NUM_CPUS; i++) {
     players[i].race = races[i - 1];
     players[i].name = races[i - 1];
@@ -823,6 +882,7 @@ const saveGameState = () => {
       players, game, gameStartTime, roundCount, pureSabaccCount,
       cpuPersonalities, opponentsRolled, deck, bomb,
       winThreshold: window.Sabacc.WIN_THRESHOLD,
+      difficulty: currentDifficulty,
     }));
   } catch {}
 };
@@ -860,6 +920,7 @@ const continueGame = () => {
   roundCount = s.roundCount || 0;
   pureSabaccCount = s.pureSabaccCount || 0;
   cpuPersonalities = s.cpuPersonalities || [];
+  currentDifficulty = s.difficulty || "knight";
   opponentsRolled = s.opponentsRolled || false;
   deck = s.deck || buildDeck();
   bomb = s.bomb || 0;
@@ -1023,10 +1084,12 @@ const renderHallOfFame = () => {
     if (hofSortKey === "rounds") return b.rounds - a.rounds;
     if (hofSortKey === "pureSabaccs") return (b.pureSabaccs || 0) - (a.pureSabaccs || 0);
     if (hofSortKey === "time") return a.time - b.time;
+    if (hofSortKey === "difficulty") return (b.difficulty || "").localeCompare(a.difficulty || "");
     return 0;
   }).slice(0, HOF_MAX);
+  const diffLabel = (d) => d ? (STR.difficulty[d] || d) : "—";
   const rows = sorted.map((e, i) =>
-    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${e.pureSabaccs || 0}</td><td>${formatTime(e.time)}</td></tr>`
+    `<tr><td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.rounds}</td><td>${e.pureSabaccs || 0}</td><td>${diffLabel(e.difficulty)}</td><td>${formatTime(e.time)}</td></tr>`
   ).join("");
   const sortAttr = (key) => key === hofSortKey ? ' class="sort-active"' : "";
   container.innerHTML =
@@ -1035,6 +1098,7 @@ const renderHallOfFame = () => {
     `<th${sortAttr("score")} onclick="hofSort('score')">${STR.hof.score}</th>` +
     `<th${sortAttr("rounds")} onclick="hofSort('rounds')">${STR.hof.rounds}</th>` +
     `<th${sortAttr("pureSabaccs")} onclick="hofSort('pureSabaccs')">${STR.hof.pureSabaccs}</th>` +
+    `<th${sortAttr("difficulty")} onclick="hofSort('difficulty')">${STR.hof.difficulty}</th>` +
     `<th${sortAttr("time")} onclick="hofSort('time')">${STR.hof.time}</th>` +
     `</tr>${rows}</table>`;
 };
@@ -1123,6 +1187,8 @@ if (document.readyState === "loading") {
 
 // Expose to inline HTML handlers
 window.gamer = gamer;
+window.showDifficulty = showDifficulty;
+window.startWithDifficulty = startWithDifficulty;
 window.turn = turn;
 window.pass = pass;
 window.showScreen = showScreen;
@@ -1144,5 +1210,6 @@ window.resetGameState = resetGameState;
 window.playAgain = playAgain;
 window.continueGame = continueGame;
 window.hasSavedGame = hasSavedGame;
+window.continueNextRound = continueNextRound;
 
 } // end of `if (typeof document !== "undefined")` block

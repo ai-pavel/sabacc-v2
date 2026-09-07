@@ -182,12 +182,22 @@ const pickOpponents = () => {
   return pool.slice(0, NUM_CPUS).map((i) => CPU_RACES[i].name);
 };
 
-const pickPersonalities = () => {
+const pickPersonalities = (pool) => {
   const arr = [];
+  const p = pool || CPU_PERSONALITIES;
   for (let i = 0; i < NUM_CPUS; i++) {
-    arr.push(CPU_PERSONALITIES[Math.floor(Math.random() * CPU_PERSONALITIES.length)]);
+    arr.push(p[Math.floor(Math.random() * p.length)]);
   }
   return arr;
+};
+
+// Difficulty presets
+const DIFFICULTY_PRESETS = {
+  youngling:    { cpus: 1, personalityPool: ["normal"],              winThreshold: 100,  key: "youngling" },
+  padawan:      { cpus: 2, personalityPool: ["normal", "folder"],   winThreshold: 500,  key: "padawan" },
+  knight:       { cpus: 3, personalityPool: null,                   winThreshold: 1000, key: "knight" },
+  sithlord:     { cpus: 4, personalityPool: ["bluffer", "risktaker"], winThreshold: 2500, key: "sithlord" },
+  grandmaster:  { cpus: 4, personalityPool: ["risktaker"],         winThreshold: 5000, key: "grandmaster" },
 };
 
 const cpuWantsToDraw = (score, threshold, personality = "normal") => {
@@ -269,7 +279,7 @@ if (typeof window !== "undefined") {
     cpuPassThreshold, cpuWantsToDraw, pickOpponents, pickPersonalities,
     swapCardInLocations, randomGeneratorStep, generatorSwap,
     pickGeneratorCards, rollFavorites,
-    refreshCpuRaces, setCpuCount, buildSeatOrder,
+    refreshCpuRaces, setCpuCount, buildSeatOrder, DIFFICULTY_PRESETS,
     PURE_SABACC, BOMB, PURE_SABACC_POINTS, BOMB_POINTS,
     WIN_THRESHOLD, EMPTY, CPU_RACES, CPU_PERSONALITIES,
     NUM_CPUS, NUM_PLAYERS,

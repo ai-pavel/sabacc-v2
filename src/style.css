@@ -149,6 +149,52 @@ a:hover {
   width: 150px;
 }
 
+/* ----- Round summary overlay ----- */
+.round-summary-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.round-summary-panel {
+  background: linear-gradient(90deg, rgba(0,0,0,0.95), rgba(20,15,0,0.9));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  padding: 24px 32px;
+  max-width: 700px;
+  text-align: center;
+}
+.round-summary-title {
+  font-size: 24px;
+  color: #ccaa00;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+.round-summary-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #ddd;
+}
+.round-summary-panel th {
+  color: #ccaa00;
+  border-bottom: 2px solid #665500;
+  padding: 6px 10px;
+  text-align: left;
+}
+.round-summary-panel td {
+  padding: 4px 10px;
+  border-bottom: 1px solid #333;
+}
+.round-summary-panel tr:nth-child(even) td {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 /* ----- End screen (win / lose / tie) ----- */
 .end-screen {
   display: flex;
@@ -248,6 +294,45 @@ a:hover {
 }
 
 /* Dark panel — same gradient/border as menu buttons, for settings & rules content */
+/* ----- Difficulty buttons ----- */
+.difficulty-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.diff-btn {
+  width: auto;
+  max-width: 400px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.diff-btn:hover {
+  background: linear-gradient(90deg, rgba(40,30,0,0.9), rgba(20,15,0,0.6));
+  border-color: #ccaa00;
+  transform: translateX(4px);
+}
+.diff-btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+.diff-btn .diff-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffe;
+}
+.diff-btn .diff-desc {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
 .sub-panel {
   background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
   border: 2px solid #665500;

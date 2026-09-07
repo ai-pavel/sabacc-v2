@@ -60,6 +60,7 @@
       sfxOff: "Non",
       rules: "\uD83D\uDCDC Règles du jeu",
       rulesTitle: "Règles du Sabacc",
+      difficultyTitle: "Choisissez votre voie",
       mainMenu: "Menu principal",
       playAgain: "Rejouer",
     },
@@ -87,6 +88,7 @@
       score: "Points",
       rounds: "Manches",
       pureSabaccs: "Sabaccs purs",
+      difficulty: "Difficulte",
       time: "Durée",
       empty: "Aucun record — jouez une partie !",
       resetConfirm: "Effacer le Temple de la renommée ?",
@@ -192,7 +194,28 @@
       bomb: " a explosé :(",
       pureSabacc: " Sabacc pur !",
       valid: " a marqué {points} pts.",
+    },    // ---- Difficulty presets ----
+    difficulty: {
+      youngling: "🟢 Jeune",
+      younglingDesc: "Entrainement au Temple Jedi - 1 adversaire normal, parties courtes",
+      padawan: "🔵 Padawan",
+      padawanDesc: "Apprendre les voies de la Force - 2 adversaires prudents",
+      knight: "🟡 Chevalier",
+      knightDesc: "Un Chevalier Jedi ne cherche pas ces choses - 3 adversaires varies",
+      sithlord: "🔴 Seigneur Sith",
+      sithlordDesc: "Le cote obscur de la Force - 4 adversaires agressifs",
+      grandmaster: "⚔️ Grand Maitre",
+      grandmasterDesc: "La taille ne compte pas - 4 adversaires temeraires, marathon",
     },
+
+
+    roundSummary: {
+      title: "Résultats de la manche",
+      continue: "Continuer",
+      hand: "Main",
+      result: "Résultat",
+    },
+
 
     alt: {
       yourField: "Votre champ d'interférence",
