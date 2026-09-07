@@ -2,63 +2,48 @@
 
 Major changes since the 2005 original.
 
-## Gameplay (10)
+## Major Features (17)
 
 1. **Difficulty presets** — 5 Star Wars-themed levels (Youngling / Padawan / Knight / Sith Lord / Grand Master) with varying CPU count, personalities, and win threshold
-2. **Configurable CPU count** — 1–4 opponents (was fixed 2), human seated in the middle
-3. **CPU personalities** — bluffer / folder / risk-taker / normal, randomly assigned per CPU
-4. **Tournament standings panel** — live scoreboard under avatars (was text in event log)
-5. **Win / Lose / Tie screen** — dedicated end screen with stats, replacing toast + page reload
-6. **Pure Sabacc counter** — tracked across the tournament, shown on end screen and Hall of Fame
-7. **Idiot's Array feedback** — celebratory toast + sound when the player assembles Idiot + 2 + 3
-8. **"Draw Card" button** — renamed from "Next Turn" for clarity
-9. **Esc key** — returns to main menu mid-game, auto-saves state
-10. **Round summary overlay** — shows all hands/scores before advancing to next round
-
-## UI (9)
-
-1. **HoMM-style main menu** — seven left-aligned buttons with emoji prefixes (Continue, Start Game, Settings, Game Rules, Hall of Fame, Credits, Exit Game)
-2. **Settings screen** — player name, music toggle, music volume, SFX toggle, win threshold, CPU count, language picker, reset Hall of Fame, clear save
-3. **Game Rules screen** — scrollable dark panel with full rules (deck, scoring, generator, interference field, tournament)
-4. **Hall of Fame** — top 10 victories in localStorage, sortable by score / rounds / pure sabaccs / game time
-5. **Credits screen** — rolling animation (45s) with music, integrated into index.html (no separate page)
-6. **Intro video** — autoplay with skip button, auto-dismiss after 6 seconds, music starts on dismiss
-7. **Continue button** — appears on main menu when a saved game exists (▶️ emoji prefix)
-8. **Toast notifications** — replaced browser alerts for bomb / pure sabacc / round results
-9. **Drag-and-drop** — for the player's interference field (replaced click-to-move)
-
-## Audio (5)
-
-1. **Sound effects** — synthesized via Web Audio API (card draw, CPU draw, generator swap, bomb, pure sabacc, Idiot's Array, pass, deal)
-2. **Independent SFX toggle** — separate from music toggle, persisted in localStorage
-3. **Background music volume** — slider in Settings, applied to both in-game cantina and credits music
-4. **Cantina in main menu** — music plays on the main menu, pauses during credits, resumes on return
-5. **Remixed cantina music** — modern version of the original cantina track
-
-## Animations (3)
-
-1. **Card slide-in** — drawn cards animate from above with scale
-2. **Card flip reveal** — CPU face-down cards flip when revealed at round end
-3. **Card glow** — generator-swapped cards pulse with golden glow
-
-## Internationalization (6)
-
-1. **10 languages** — English, Russian, Spanish, French, German, Polish, Italian, Portuguese, Japanese, Chinese
-2. **Language picker** in Settings, persisted in localStorage, applies on the fly
-3. **All human-facing strings** extracted to `src/i18n/*.js` locale files
-4. **CPU opponent names** translate with locale (via `i18n.onLocaleChange` hook)
-5. **Localized card names** — face cards and suits translate with locale (compile() reads STR live)
-6. **Localized credits** — all credit panels translated in each locale
-
-## Architecture (10)
-
-1. **Separation of concerns** — pure rules in `src/rules.js`, DOM/UI in `src/game.js`
-2. **`players[]` array** — replaced all numbered globals (`cards1`, `score1`, `points1`, etc.)
-3. **Dynamic board builder** — `buildGameBoard()` generates all seat DOM from templates
-4. **`generatorSwap()`** — generalized to accept any number of hands
-5. **`pickOpponents()`** — Fisher-Yates shuffle for N distinct races
-6. **`cpuWantsToDraw()`** — accepts personality parameter for varied AI behavior
+2. **CPU personalities** — bluffer / folder / risk-taker / normal, randomly assigned per CPU per difficulty
+3. **Tournament standings panel** — live scoreboard under avatars (was text in event log)
+4. **Win / Lose / Tie screen** — dedicated end screen with stats, replacing toast + page reload
+5. **Round summary overlay** — shows all hands/scores before advancing to next round
+6. **Hall of Fame** — top 10 victories in localStorage, sortable by score / rounds / pure sabaccs / difficulty / game time
 7. **Game state save/load** — auto-save after each turn, Continue button on main menu, clear save in Settings
-8. **Settings persistence** — player name, music, SFX, volume, win threshold, CPU count, language all in localStorage
-9. **Inter font** replaced Palatino Linotype across the UI
-10. **Renamed** `program.js` → `rules.js` + `game.js`, `credits.html` merged into `index.html`
+8. **HoMM-style main menu** — left-aligned buttons with emoji prefixes (Continue, Start Game, Settings, Game Rules, Hall of Fame, Credits, Exit Game)
+9. **Settings screen** — language, player name, SFX toggle, music toggle, music volume, reset Hall of Fame, clear save
+10. **Game Rules screen** — scrollable dark panel with full rules (deck, scoring, generator, interference field, tournament)
+11. **Credits screen** — rolling animation (45s) with music, integrated into index.html (no separate page)
+12. **Intro video** — autoplay with skip button, auto-dismiss after 6 seconds, music starts on dismiss
+13. **Sound effects** — synthesized via Web Audio API (card draw, CPU draw, generator swap, bomb, pure sabacc, Idiot's Array, pass, deal)
+14. **10 languages** — English, Russian, Spanish, French, German, Polish, Italian, Portuguese, Japanese, Chinese
+15. **Card animations** — slide-in on draw, flip on reveal, golden glow on generator swap
+16. **Drag-and-drop** — for the player's interference field (replaced click-to-move)
+17. **Remixed cantina music** — modern version of the original cantina track
+
+## Improvements (12)
+
+1. **Pure Sabacc counter** — tracked across the tournament, shown on end screen and Hall of Fame
+2. **Idiot's Array feedback** — celebratory toast + sound when the player assembles Idiot + 2 + 3
+3. **Esc key** — returns to main menu mid-game, auto-saves state
+4. **"Draw Card" button** — renamed from "Next Turn" for clarity
+5. **Continue button** — appears on main menu when a saved game exists (▶️ emoji prefix)
+6. **Toast notifications** — replaced browser alerts for bomb / pure sabacc / round results
+7. **Independent SFX toggle** — separate from music toggle, persisted in localStorage
+8. **Background music volume** — slider in Settings, applied to both in-game cantina and credits music
+9. **Cantina in main menu** — music plays on the main menu, pauses during credits, resumes on return
+10. **Language picker** in Settings, persisted in localStorage, applies on the fly
+11. **Inter font** replaced Palatino Linotype across the UI
+12. **Separation of concerns** — pure rules in `src/rules.js`, DOM/UI in `src/game.js`
+
+## Architecture Refactoring (8)
+
+1. **`players[]` array** — replaced all numbered globals (`cards1`, `score1`, `points1`, etc.)
+2. **Dynamic board builder** — `buildGameBoard()` generates all seat DOM from templates
+3. **`generatorSwap()`** — generalized to accept any number of hands
+4. **`pickOpponents()`** — Fisher-Yates shuffle for N distinct races
+5. **`cpuWantsToDraw()`** — accepts personality parameter for varied AI behavior
+6. **Settings persistence** — player name, music, SFX, volume, language all in localStorage
+7. **Renamed** `program.js` → `rules.js` + `game.js`, `credits.html` merged into `index.html`
+8. **Difficulty presets architecture** — `DIFFICULTY_PRESETS` in rules.js drives CPU count, personality pool, and win threshold
