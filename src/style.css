@@ -1,0 +1,756 @@
+/* =============================================================================
+   Sabacc Tournament — styles
+   =============================================================================
+
+   Layout: a fixed-width (720px) game board centered horizontally and
+   vertically in the browser window. The body background (starfield) is
+   drawn once, centered, and does not repeat or scroll.
+   ========================================================================== */
+
+/* ----- Page body ----- */
+body {
+  margin: 0;
+  padding: 0;
+  background: #000 url(../assets/images/bg.jpg) no-repeat center center fixed;
+  background-size: cover;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----- Hyperlinks ----- */
+a:link, a:active, a:visited {
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+a:hover {
+  color: red;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  text-decoration: none;
+}
+
+/* ----- Screens (start panel & game panel) ----- */
+.screen {
+  width: 900px;
+  box-sizing: border-box;
+}
+.game-screen {
+  display: none;
+}
+
+/* ----- Intro video overlay ----- */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.intro-overlay.hidden {
+  display: none;
+}
+.intro-video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+.intro-skip {
+  position: fixed;
+  bottom: 30px;
+  right: 40px;
+  z-index: 10000;
+  padding: 8px 24px;
+  font-size: 16px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.intro-skip:hover {
+  background: rgba(40,30,0,0.8);
+  border-color: #ccaa00;
+}
+
+/* ----- Main menu (HoMM-style left-aligned buttons) ----- */
+.menu-screen {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-left: 80px;
+}
+.menu-btn {
+  width: 240px;
+  padding: 12px 24px;
+  font-size: 22px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.menu-btn:hover {
+  background: linear-gradient(90deg, rgba(40,30,0,0.9), rgba(20,15,0,0.6));
+  border-color: #ccaa00;
+  transform: translateX(4px);
+}
+.menu-btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+/* ----- Sub-screens (settings, hall of fame, rules) — left-aligned like menu ----- */
+.sub-screen {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+.sub-screen .screen-inner {
+  margin-left: 80px;
+  max-width: 600px;
+}
+.sub-screen .title {
+  font-size: 28px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.sub-screen .label {
+  font-size: 16px;
+  width: 130px;
+  flex-shrink: 0;
+}
+.sub-screen .formControl {
+  font-size: 14px;
+  padding: 3px 6px;
+  width: 150px;
+  box-sizing: border-box;
+}
+.sub-screen .form-row {
+  justify-content: flex-start;
+}
+.name-input {
+  width: 150px;
+}
+
+/* ----- Round summary overlay ----- */
+.round-summary-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.round-summary-panel {
+  background: linear-gradient(90deg, rgba(0,0,0,0.95), rgba(20,15,0,0.9));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  padding: 24px 32px;
+  max-width: 700px;
+  text-align: center;
+}
+.round-summary-title {
+  font-size: 24px;
+  color: #ccaa00;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+.round-summary-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #ddd;
+}
+.round-summary-panel th {
+  color: #ccaa00;
+  border-bottom: 2px solid #665500;
+  padding: 6px 10px;
+  text-align: left;
+}
+.round-summary-panel td {
+  padding: 4px 10px;
+  border-bottom: 1px solid #333;
+}
+.round-summary-panel tr:nth-child(even) td {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ----- End screen (win / lose / tie) ----- */
+.end-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.end-inner {
+  text-align: center;
+  max-width: 500px;
+}
+.end-emoji {
+  font-size: 72px;
+  margin-bottom: 8px;
+}
+.end-title {
+  font-size: 36px;
+  color: yellow;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.end-panel {
+  margin-bottom: 20px;
+}
+.end-name {
+  font-size: 22px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+.end-stats {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.8;
+}
+
+/* ----- Credits screen ----- */
+.credits-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+.credits-window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.credits-scroll {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  animation: roll 45s linear infinite;
+  transition: animation-duration 0.3s ease;
+}
+@keyframes roll {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+.credits-scroll .panel {
+  padding: 30px 20px;
+  font-size: 14px;
+  color: #9999ff;
+}
+.credits-scroll .panel b {
+  font-size: 18px;
+  color: #ccc;
+}
+.credits-scroll .panel .small {
+  font-size: 11px;
+  color: #888;
+}
+.credits-scroll .panel a {
+  color: #ccaa00;
+  text-decoration: none;
+}
+.credits-scroll .panel a:hover {
+  color: #ffe066;
+  text-decoration: underline;
+}
+.credits-screen .back-link {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 10;
+  background: rgba(0,0,0,0.7);
+  padding: 5px 0;
+}
+
+/* Dark panel — same gradient/border as menu buttons, for settings & rules content */
+/* ----- Difficulty buttons ----- */
+.difficulty-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.diff-btn {
+  width: auto;
+  max-width: 400px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.diff-btn:hover {
+  background: linear-gradient(90deg, rgba(40,30,0,0.9), rgba(20,15,0,0.6));
+  border-color: #ccaa00;
+  transform: translateX(4px);
+}
+.diff-btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+.diff-btn .diff-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffe;
+}
+.diff-btn .diff-desc {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.sub-panel {
+  background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.5));
+  border: 2px solid #665500;
+  border-radius: 4px;
+  padding: 20px 24px;
+  max-width: 600px;
+}
+
+/* ----- Rules screen ----- */
+.rules-content {
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #665500 rgba(0,0,0,0.3);
+}
+.rules-content::-webkit-scrollbar {
+  width: 8px;
+}
+.rules-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.3);
+}
+.rules-content::-webkit-scrollbar-thumb {
+  background: #665500;
+  border-radius: 4px;
+}
+.rules-content h3 {
+  color: #ccaa00;
+  font-size: 16px;
+  margin: 18px 0 6px;
+}
+.rules-content p {
+  margin: 4px 0;
+}
+.rules-content ul {
+  margin: 4px 0 4px 0;
+  padding-left: 20px;
+}
+.rules-content li {
+  margin: 2px 0;
+}
+.rules-content table {
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+.rules-content th, .rules-content td {
+  padding: 4px 12px 4px 0;
+  text-align: left;
+}
+.rules-content th {
+  color: #ccaa00;
+  border-bottom: 1px solid #665500;
+}
+.form-row {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.form-row .label {
+  white-space: nowrap;
+}
+
+/* ----- Title text ----- */
+.title {
+  font-size: 18px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+/* ----- Form controls ----- */
+.formControl {
+  font-size: 12px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: #000;
+  border: 1px solid #444;
+  padding: 2px 4px;
+}
+
+/* ----- Labels ----- */
+.label {
+  font-size: 14px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ----- Top row: generator | interference field | log ----- */
+.game-top {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Generator panel — uses gb.gif as its background (184x126 in original) */
+.generator-panel {
+  width: 184px;
+  flex-shrink: 0;
+  background: url(../assets/ui/gb.gif) no-repeat center center;
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  box-sizing: border-box;
+}
+.generator-panel img {
+  margin: 4px 0;
+}
+/* Generator card display fields — sized via CSS, not HTML attributes */
+.gen-card {
+  width: 165px;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* Interference field panel — uses ib.gif (128x128) */
+.field-panel {
+  flex: 0 1 360px;
+  background: url(../assets/ui/ib.gif) no-repeat center center;
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.field-label {
+  font-size: 12px;
+  color: yellow;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.field-slots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.field-slots img {
+  width: 54px;
+  height: 78px;
+}
+.field-hint {
+  font-size: 10px;
+  color: #888;
+  margin: 6px 0 0;
+}
+/* Player's field drop zone — visual feedback when dragging over */
+.field-drop-zone {
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.field-drop-zone.drag-over {
+  border-color: yellow;
+}
+#playerField {
+  cursor: pointer;
+}
+
+/* Event log + buttons */
+.log-panel {
+  flex: 1;
+  min-width: 0;
+  background: #99adc6;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.log-panel textarea {
+  flex: 1;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+/* ----- Event log textarea ----- */
+.eventLogStyle {
+  font-size: 11px;
+  background-color: #99adc6;
+  background-image: url(../assets/images/bith.jpg);
+  background-repeat: no-repeat;
+  background-position: right center;
+  color: #1a2332;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  border: 1px solid #444;
+  line-height: 1.4;
+  padding: 4px 6px;
+}
+
+/* ----- Card table — uses table.jpg (717x218) ----- */
+.card-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: url(../assets/images/table.jpg) no-repeat center top;
+  background-size: 100% auto;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  min-height: 218px;
+}
+
+.hand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.hand-drawn, .hand-dealt {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.hand img {
+  width: 50px;
+  height: 72px;
+}
+
+/* Card animations */
+.hand img.card-draw {
+  animation: cardSlideIn 0.3s ease-out;
+}
+@keyframes cardSlideIn {
+  0%   { transform: translateY(-30px) scale(0.8); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.hand img.card-reveal {
+  animation: cardFlip 0.4s ease-out;
+}
+@keyframes cardFlip {
+  0%   { transform: rotateY(90deg); opacity: 0; }
+  100% { transform: rotateY(0deg); opacity: 1; }
+}
+.hand img.card-swap {
+  animation: cardGlow 0.6s ease-out;
+}
+@keyframes cardGlow {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 230, 0, 0); }
+  30%  { box-shadow: 0 0 12px 4px rgba(255, 230, 0, 0.8); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 230, 0, 0); }
+}
+
+/* Player cards are draggable */
+.player-hand img {
+  cursor: grab;
+  transition: opacity 0.2s;
+}
+.player-hand img:drag {
+  opacity: 0.5;
+}
+.player-hand img.dragging {
+  opacity: 0.4;
+}
+
+/* ----- Avatar row ----- */
+.avatar-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  background: url(../assets/ui/back3.gif);
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+.avatar-row img {
+  width: 55px;
+  height: 55px;
+}
+
+/* ----- Tournament standings panel (under avatars) ----- */
+.tournament-panel {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  border-top: 1px solid #333;
+  padding: 6px 0 8px;
+  box-sizing: border-box;
+  text-align: center;
+}
+.tournament-title {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #cccc66;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tournament-scores {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+.score-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+.score-name {
+  font-size: 12px;
+  color: yellow;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.score-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffe;
+}
+.score-unit {
+  font-size: 10px;
+  color: #999;
+  margin-left: 3px;
+}
+
+/* ----- Hall of Fame table ----- */
+.hof-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: yellow;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.hof-table th {
+  background: rgba(0,0,0,0.6);
+  color: #ccaa00;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid #665500;
+  cursor: pointer;
+  user-select: none;
+}
+.hof-table th:hover {
+  color: #ffe066;
+}
+.hof-table th.sort-active {
+  color: #ffe066;
+  text-decoration: underline;
+}
+.hof-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #333;
+}
+.hof-table tr:nth-child(even) td {
+  background: rgba(0,0,0,0.25);
+}
+.hof-empty {
+  color: #888;
+  font-size: 16px;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* ----- Toast notifications ----- */
+#toastContainer {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast-info {
+  background: rgba(50, 50, 80, 0.9);
+  border: 1px solid #6666ff;
+}
+.toast-success {
+  background: rgba(20, 80, 20, 0.9);
+  border: 1px solid #44aa44;
+}
+.toast-error {
+  background: rgba(80, 20, 20, 0.9);
+  border: 1px solid #aa4444;
+}
+
+/* ----- Alternate panel style (kept for completeness) ----- */
+.panelCellAlt {
+  font-size: 14px;
+  background-image: url(../assets/ui/ib.gif);
+  color: #000033;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}

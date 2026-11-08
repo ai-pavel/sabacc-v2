@@ -1,0 +1,3 @@
+# Intro video generation prompt
+
+> Slow cinematic camera push-in toward the cityscape. The silver starship on the left descends smoothly toward the landing platform, engine glow pulsing softly, banking slightly as it descends. The informational robot on the right turns its head toward the camera and raises its hand in a slow welcoming gesture, display screen flickering to life with soft blue light. Sunset light shifts subtly across the chrome skyscrapers, atmospheric haze drifting slowly between towers. Distant flying vehicles traverse the sky from left to right. Gentle lens flare as the camera moves. Keep the dark foreground framing stable for UI overlay. Smooth, natural motion, no camera shake, 5 seconds, cinematic 24fps.

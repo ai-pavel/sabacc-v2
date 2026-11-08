@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Sabacc Tournament Anniversary Remaster</title>
+<link href="src/style.css" rel="stylesheet">
+<!-- i18n: loader + locales + init must load before game.js -->
+<script src="src/i18n/loader.js"></script>
+<script src="src/i18n/en.js"></script>
+<script src="src/i18n/ru.js"></script>
+<script src="src/i18n/es.js"></script>
+<script src="src/i18n/fr.js"></script>
+<script src="src/i18n/de.js"></script>
+<script src="src/i18n/pl.js"></script>
+<script src="src/i18n/it.js"></script>
+<script src="src/i18n/pt.js"></script>
+<script src="src/i18n/ja.js"></script>
+<script src="src/i18n/zh.js"></script>
+<script src="src/i18n/init.js"></script>
+<!-- Game logic -->
+<script src="src/rules.js"></script>
+<script src="src/game.js"></script>
+</head>
+<body>
+
+<!-- ============ Intro video overlay (with skip button) ============ -->
+<div id="introVideo" class="intro-overlay">
+  <video id="introPlayer" class="intro-video" autoplay muted playsinline>
+    <source src="assets/video/intro_video.mp4" type="video/mp4">
+  </video>
+  <input type="button" class="intro-skip" onClick="skipIntro()" value="Skip" data-i18n="ui.skip">
+</div>
+
+<!-- ============ Main menu ============ -->
+<div id="startPanel" class="screen menu-screen">
+  <div class="menu-buttons">
+    <input type="button" class="menu-btn" id="continueBtn" onClick="continueGame()" value="Continue" data-i18n="ui.continue" style="display:none">
+    <input type="button" class="menu-btn" onClick="showDifficulty()" value="Start Game" data-i18n="ui.startGame">
+    <input type="button" class="menu-btn" onClick="showScreen('settingsScreen')" value="Settings" data-i18n="ui.settings">
+    <input type="button" class="menu-btn" onClick="showRules()" value="Rules" data-i18n="ui.rules">
+    <input type="button" class="menu-btn" onClick="showHallOfFame()" value="Hall of Fame" data-i18n="ui.hallOfFame">
+    <input type="button" class="menu-btn" onClick="showCredits()" value="Credits" data-i18n="ui.credits">
+    <input type="button" class="menu-btn" onClick="exitGame()" value="Exit Game" data-i18n="ui.exitGame">
+  </div>
+</div>
+
+<!-- ============ Difficulty selection screen ============ -->
+<div id="difficultyScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.difficultyTitle">Choose Your Path</p>
+    <div class="sub-panel">
+      <div class="difficulty-buttons" id="difficultyButtons"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Settings screen ============ -->
+<div id="settingsScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.settingsTitle">Settings</p>
+    <div class="sub-panel">
+      <div class="form-row">
+        <span class="label" data-i18n="ui.language">Language:</span>
+        <select id="langSelect" class="formControl"></select>
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.yourName">Your name:</span>
+        <input type="text" class="formControl name-input" id="nameInput" maxlength="19" placeholder="Player" data-i18n-ph="defaultPlayerName">
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.sfxLabel">Sound effects?</span>
+        <select id="sfxToggle" class="formControl" onChange="setSfx(this.value)">
+          <option value="on" data-i18n="ui.sfxOn">On</option>
+          <option value="off" data-i18n="ui.sfxOff">Off</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.enableMusic">Enable music?</span>
+        <select id="musicToggle" class="formControl" onChange="setMusic(this.value)">
+          <option value="on" data-i18n="ui.musicOn">On</option>
+          <option value="off" data-i18n="ui.musicOff">Off</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <span class="label" data-i18n="ui.musicVolume">Music volume:</span>
+        <input type="range" id="musicVolume" class="formControl" min="0" max="100" value="50" onChange="setMusicVolume(this.value)">
+      </div>
+      <div class="form-row">
+        <input type="button" class="formControl" onClick="resetHallOfFame()" value="Reset Hall of Fame" data-i18n="ui.resetHoF">
+      </div>
+      <div class="form-row">
+        <input type="button" class="formControl" onClick="clearSave()" value="Clear Save" data-i18n="ui.clearSave">
+      </div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Hall of Fame screen ============ -->
+<div id="hofScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.hallOfFameTitle">Hall of Fame</p>
+    <div class="sub-panel">
+      <div id="hofTable"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Rules screen ============ -->
+<div id="rulesScreen" class="screen sub-screen" style="display:none">
+  <div class="screen-inner">
+    <p class="title" data-i18n="ui.rulesTitle">Rules</p>
+    <div class="sub-panel">
+      <div id="rulesContent" class="rules-content"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel')" value="Back" data-i18n="ui.back">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Credits screen ============ -->
+<div id="creditsScreen" class="screen credits-screen" style="display:none">
+  <div class="credits-window">
+    <div class="credits-scroll" id="creditsScroll"></div>
+  </div>
+  <div class="back-link">
+    <input type="button" class="formControl" onClick="stopCreditsMusic(); showScreen('startPanel')" value="Back" data-i18n="ui.back">
+  </div>
+  <audio loop id="creditsAudio">
+    <source src="assets/audio/credits.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<!-- ============ Round summary overlay ============ -->
+<div id="roundSummary" class="round-summary-overlay" style="display:none">
+  <div class="round-summary-panel">
+    <p class="round-summary-title" data-i18n="roundSummary.title">Round Results</p>
+    <div id="roundSummaryTable"></div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="continueNextRound()" value="Continue" data-i18n="roundSummary.continue">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Win / Lose / Tie screens ============ -->
+<div id="endScreen" class="screen end-screen" style="display:none">
+  <div class="screen-inner end-inner">
+    <div class="end-emoji" id="endEmoji"></div>
+    <p class="end-title" id="endTitle"></p>
+    <div class="sub-panel end-panel">
+      <p class="end-name" id="endWinner"></p>
+      <div class="end-stats" id="endStats"></div>
+    </div>
+    <div class="form-row">
+      <input type="button" class="formControl" onClick="showScreen('startPanel'); resetGameState()" value="Main Menu" data-i18n="ui.mainMenu">
+      <input type="button" class="formControl" onClick="playAgain()" value="Play Again" data-i18n="ui.playAgain">
+    </div>
+  </div>
+</div>
+
+<!-- ============ Game screen ============ -->
+<div id="game" class="screen game-screen">
+
+  <!-- Top row: generator panel | interference field | event log + buttons -->
+  <div class="game-top">
+
+    <!-- Generator (randomizer pot) display -->
+    <div class="generator-panel">
+      <input type="text" class="formControl gen-card" id="genCard1" readonly>
+      <img src="assets/ui/generator.gif" alt="generator" data-i18n="uiGame.generatorAlt">
+      <input type="text" class="formControl gen-card" id="genCard2" readonly>
+    </div>
+
+    <!-- Interference field: one slot per seat, generated by buildGameBoard() -->
+    <div class="field-panel">
+      <div class="field-label" data-i18n="uiGame.interferenceField">Interference field</div>
+      <div class="field-slots" id="fieldSlots"></div>
+      <p class="field-hint" data-i18n="uiGame.fieldHint">Drag a card here to protect it</p>
+    </div>
+
+    <!-- Event log + action buttons -->
+    <div class="log-panel">
+      <textarea readonly wrap="virtual" class="eventLogStyle" id="eventLog"></textarea>
+      <div class="action-buttons">
+        <input type="button" class="formControl" id="turnBtn" onClick="turn()" value="Next turn" data-i18n="uiGame.nextTurn">
+        <input type="button" class="formControl" id="passBtn" onClick="pass()" value="Pass" data-i18n="uiGame.pass">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Card table: one .hand per seat, generated by buildGameBoard() -->
+  <div class="card-table" id="cardTable"></div>
+
+  <!-- Avatar row: one per seat, generated by buildGameBoard() -->
+  <div class="avatar-row" id="avatarRow"></div>
+
+  <!-- Tournament standings panel (under avatars) -->
+  <div class="tournament-panel">
+    <div class="tournament-title" data-i18n="uiGame.tournamentTitle">Tournament</div>
+    <div class="tournament-scores" id="tournamentScores"></div>
+  </div>
+
+</div>
+
+<!-- Toast notification container -->
+<div id="toastContainer"></div>
+
+<audio id="musicPlayer" loop autoplay hidden></audio>
+</body>
+</html>
