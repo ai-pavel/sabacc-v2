@@ -1,4 +1,4 @@
-# Sabacc Tournament
+# 🎉 Sabacc Tournament
 
 A 5-player Sabacc card game (you + 4 CPU opponents) set in the Star Wars
 universe, originally written in 2005 by Revan (idea + code) and
