@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Создатели игры сабакк</title>
+<style>
+A:link, A:active, A:visited { COLOR: yellow; FONT-FAMILY: Palatino Linotype }
+A:hover { COLOR: red; FONT-FAMILY: Palatino Linotype; TEXT-DECORATION: none }
+</style>
+<SCRIPT language=javaScript>
+function checkBrowserForVersion4(){
+window.offsetWidth = 205
+window.offsetHeight = 175
+var x=navigator.appVersion;y=x.substring(0,4);if(y>=4)strobeEffect();}
+var isNav=(navigator.appName.indexOf("Netscape")!=-1);a=0;b=1;ob=1;
+var colors=new Array("6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","6666FF","000000")
+function strobeEffect(){color=colors[a];
+aah="<br><table width=200 align=center><td><center><font color="+color+" face=Arial size=2>";aab="</font></a></center></td></table>"
+
+ob1="Все имена, названия и всё связанное со<br>\"Звёздными Войнами\"<br>принадлежит<br><font size=3><br><b>Lucasfilm. Ltd</font><br><br><font size=1>и Джорджу Лукасу</font>"
+ob2="Идея<br>by<br><font size=3><br><b>Revan</b></font><br><br><font size=1>revan1@mail.ru<br>ICQ#: 204-399-592</font><br><br>"
+ob3="Программирование<br>тоже by<br><font size=3><br><b>Revan</b></font><br><br><font size=1>revan1@mail.ru<br>ICQ#: 204-399-592</font><br><br>"
+ob4="Графика<br>by<br><font size=3><br><b>Darth Favourite</b></font><br><br><font size=1>favourite_2003@mail.ru<br>ICQ#: 297-600-992</font><br><br>"
+ob5="Музыка<br>by<br><font size=3><br><b>Марк Грискей</b></font><br><font size=1>(The Sith Lords: Iziz Cantina)</font><br>&&<br><font size=3><b>Джон Уильямс</b></font><br><font size=1>(Star Wars: End Credits)</font>"
+ob6="Благодарим<br><br><font size=3><b>Джеймса Лучено</b></font><br><br><font size=1><br>за книгу \"Посланники Хаоса I:<br>Проверка на прочность\"</font><br><br><br>"
+ob7="а также<br><br><b><font size=3>Джорджа Лукаса</font></b><br><br><font size=1>за великолепную<br>сагу \"Звёздные Войны\",</font><br><br><br>"
+ob8="и компанию <b>Microsoft</b><br><br><font size=3><b>за программу Notepad</b></font><br><br><font size=1>в которой создавалась эта игра... =)</font><br><br><br>"
+
+obj=eval("ob"+ob);mid=obj;aa=aah+mid+aab
+if(isNav) {document.object1.document.write(aa);document.object1.document.close();}
+else {object1.innerHTML=aa}
+a+=b;if (a==38) b-=2,ob+=1;if (ob==9) { ob=1; document.getElementById("cr").src="files/credits.mp3" }
+if (a==0) b+=2;xx=setTimeout("strobeEffect()",50);}
+</SCRIPT>
+
+</HEAD>
+<BODY onLoad="checkBrowserForVersion4()" bgcolor="#00000">
+<br><br><br>
+<DIV id=object1 style="LEFT: 0px; POSITION: center; TOP: 0px; Z-INDEX: 2"></DIV>
+<br><br><br><br><br><br>
+<div align="center"><a href="index.htm">Вернутся к игре</a></div>
+<bgsound loop="-1" src="files/credits.mp3" id="cr">
+</BODY>
+
+</html>

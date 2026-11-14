@@ -1,4 +1,4 @@
-# 🎉 Sabacc Tournament
+# 🎲 Sabacc Tournament
 
 A 5-player Sabacc card game (you + 4 CPU opponents) set in the Star Wars
 universe, originally written in 2005 by Revan (idea + code) and
@@ -6,10 +6,14 @@ Darth Favourite (graphics), and refactored for modern browsers. The
 ruleset is inspired by the Sabacc scene in James Luceno's novel
 *Agents of Chaos I: Hero's Trial*.
 
-This is an anniversary remake of the original 2005 game, preserved in
-[sabacc-v1](https://github.com/ai-pavel/sabacc-v1).
+This is an anniversary remake of the original 2005 game. The original
+source code (formerly the separate
+[sabacc-v1](https://github.com/ai-pavel/sabacc-v1) repository) now lives
+in the [`sabacc-v1/`](sabacc-v1/) folder of this repo; rules and FAQ (in
+Russian) are in `sabacc-v1/Правила.txt` and `sabacc-v1/FAQ.txt`.
 
-Play online: https://ai-pavel.github.io/sabacc-v2/
+Play online: https://ai-pavel.github.io/sabacc-v2/ (the 2005 original:
+https://ai-pavel.github.io/sabacc-v2/sabacc-v1/)
 
 ## Quick start
 
@@ -411,6 +415,7 @@ assets/
 test/
   rules.test.js         Unit tests (run with `node --test`)
 analysis.md             Original 2005 code analysis and bug inventory
+sabacc-v1/              Original 2005 game (formerly the sabacc-v1 repo)
 ```
 
 ## Credits

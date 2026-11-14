@@ -26,6 +26,16 @@ jobs:
         run: |
           mkdir _site
           cp -R index.html src assets _site/
+          # The 2005 original: its sources use upper-case DOS file names but
+          # reference them in lower case; Pages is case-sensitive, so publish
+          # a lower-cased copy.
+          cd sabacc-v1/src
+          find . -type f | while read -r f; do
+            dest="../../_site/sabacc-v1/$(echo "$f" | tr '[:upper:]' '[:lower:]')"
+            mkdir -p "$(dirname "$dest")"
+            cp "$f" "$dest"
+          done
+          cp ../../_site/sabacc-v1/index.htm ../../_site/sabacc-v1/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

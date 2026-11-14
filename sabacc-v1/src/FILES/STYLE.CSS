@@ -1,0 +1,10 @@
+BODY { FONT-SIZE: 14px; BACKGROUND-IMAGE: url(bg.jpg); COLOR: yellow; FONT-FAMILY: Palatino Linotype;
+margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px; }
+A:link, A:active, A:visited { COLOR: yellow; FONT-FAMILY: Palatino Linotype }
+A:hover { COLOR: red; FONT-FAMILY: Palatino Linotype; TEXT-DECORATION: none }
+.TD2 { FONT-SIZE: 14px; BACKGROUND-IMAGE: url(back3.gif); COLOR: #000033; FONT-FAMILY: Palatino Linotype; }
+.TD3 { FONT-SIZE: 14px; BACKGROUND-IMAGE: url(ib.gif); COLOR: #000033; FONT-FAMILY: Palatino Linotype; }
+.N2 { FONT-SIZE: 18px; COLOR: yellow; FONT-FAMILY: Palatino Linotype }
+.baton2 { FONT-SIZE: 12px; COLOR: yellow; FONT-FAMILY: Palatino Linotype; BACKGROUND-COLOR: #000000 }
+.baton3 { background-attachment: fixed; FONT-SIZE: 12px; BACKGROUND-COLOR: #000000; BACKGROUND-IMAGE: url(bith.jpg); COLOR: yellow; FONT-FAMILY: Palatino Linotype; }
+

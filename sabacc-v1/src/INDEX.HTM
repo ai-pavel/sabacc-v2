@@ -1,0 +1,69 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Турнир по сабакку</title>
+<link href="files/style.css" rel="stylesheet">
+<script language="javascript" src="files/program.js" charset="utf-8"></script>
+</head>
+<body>
+
+<div id="vvod" style="position:absolute; left:0px; top:0px; width:387px;height:101px; z-index:1">
+  <p align="center" class="N2">Турнир по сабакку &copy; 2005</p>
+  <div align="center">
+    <span class="style2">Ваше имя:    
+	</span>
+    <input type="text" class="baton2" id="name" size="20" maxlength="19"><br>
+     <span class="style2">Фото:</span>    
+     <input type="file" id="ava" class="baton2" size="12">
+     <br>
+     <span class="style2"><i>Внимание! Фотография будет<br>
+уменьшена до размеров 65*65 </i><br>
+<input name="music" type="checkbox" class="baton2" id="m1">&nbsp;Включить музыку?</span><br>
+
+<input type="button" class="baton2" onClick="gamer()" value="Начать игру"><br>
+<a href="autors.htm">Credits</a>
+</div>
+</div>
+
+<span id="game" style="visibility:hidden">
+<table width="720" border="0" align="center">
+  <tr>
+    <td width="184" rowspan="2" align="center" background="files/gb.gif">
+       <input type="text" class="baton2" size="30" maxlength="30" id="gen1" readonly>
+      <img src="files/generator.gif">      <input type="text" class="baton2" size="30" maxlength="30" id="gen2" readonly>
+    </td>
+    <td width="250" rowspan="2" align="center" background="files/ib.gif"><font size="2" color="yellow"><b>Интерферирующее поле</b></font><br><img src="cards/field.gif" alt="Интерферирующее поле соперника" width="66" height="95" id="inter1">&nbsp;&nbsp;&nbsp;<img src="cards/field.gif" alt="Ваше интерферирующее поле" width="66" height="95" id="inter" onClick="alterac(this.src)">&nbsp;&nbsp;&nbsp;<img src="cards/field.gif" alt="Интерферирующее поле соперника" width="66" height="95" id="inter2"></td>
+    <td width="268" colspan="2" align="center" class="TD2">
+        <textarea cols="50" rows="5" readonly wrap="VIRTUAL" class="baton3" id="log">
+      </textarea>
+ </td>
+  </tr>
+  <tr>
+    <td class="TD2" align="left"><input type="button" class="baton2" id="turn" onClick="turn()" value="След. ход"></td>
+    <td class="TD2" align="right"><input type="button" class="baton2" id="pass" onClick="pass()" value="Пас"></td>
+  </tr>
+</table>
+<table width="715" border="0" align="center" background="files/table.jpg">
+  <tr>
+    <td height="213" colspan="2" align="center"><img src="cards/blank.gif" width="66" height="95" id="cpuc2">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="cpuc3">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="cpuc4">
+      <br>
+      <img src="cards/wallp.gif" width="66" height="95" id="cpuc0">&nbsp;&nbsp;&nbsp;<img src="cards/wallp.gif" width="66" height="95" id="cpuc1"></td>
+    <td height="213" align="center"><img src="cards/blank.gif" width="66" height="95" id="cart2" onClick="interac(2, this.src, this.id)">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="cart3" onClick="interac(3, this.src, this.id)">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="cart4" onClick="interac(4, this.src, this.id)">
+      <br>
+    <img src="cards/blank.gif" width="66" height="95" id="cart0" onClick="interac(0, this.src, this.id)">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="cart1" onClick="interac(1, this.src, this.id)"></td>
+    <td height="213" align="center"><img src="cards/blank.gif" width="66" height="95" id="kpuc2">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="kpuc3">&nbsp;&nbsp;&nbsp;<img src="cards/blank.gif" width="66" height="95" id="kpuc4">
+      <br>
+      <img src="cards/wallp.gif" width="66" height="95" id="kpuc0">&nbsp;&nbsp;&nbsp;<img src="cards/wallp.gif" width="66" height="95" id="kpuc1"></td>
+  </tr>
+</table>
+  <table width="715" border="0" align="center">
+  <tr class="TD2">
+    <td height="67" align="center" colspan="2"><img src="files/blank.gif" width="65" height="65" id="av1"></td>
+    <td height="67" align="center"><img src="files/default.gif" width="65" height="65" id="av2"></td>
+    <td height="67" align="center"><img src="files/blank.gif" width="65" height="65" id="av3"></td>
+  </tr>
+</table>
+</span>
+<bgsound id="sound1" loop="-1" volume="-1">
+</body>
+</html>
